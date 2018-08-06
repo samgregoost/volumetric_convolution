@@ -15,7 +15,7 @@ print(tf.__version__)
 raw_points_init = tf.placeholder(tf.float32, shape=[ None, 3], name="raw_points")
 
 #centered_points = tf.subtract(raw_points_init, tf.reduce_mean(raw_points_init, axis = 0, keepdims = True))
-
+centered_points = tf.subtract(raw_points_init, (tf.reduce_max(raw_points_init, axis = 0, keepdims = True)+tf.reduce_min(raw_points_init, axis = 0, keepdims = True))/2.0)
 centered_points = raw_points_init 
 
 centered_points_expanded = tf.expand_dims(centered_points, 0,
@@ -2050,8 +2050,8 @@ def read_datapoint(data, filename):
 
 saver = tf.train.Saver()
 
-training_files = '/media/ram095/329CCC2B9CCBE785/datasets/ModelNet10/train/'
-testing_files = '/media/ram095/329CCC2B9CCBE785/datasets/ModelNet10/test/'
+training_files = '/home/ram095/sameera/3d_obj/training_files/'
+testing_files = '/home/ram095/sameera/3d_obj/testing_files/'
 
 #saver.restore(sess, "./model.ckpt")
 loss_train_vals = []
@@ -2105,18 +2105,20 @@ for j in range(10):
 	        if points_raw.size > 1000 and points_raw.size <  1000000:	
 		#sess.run([accum_ops], feed_dict = {y:y_annot, raw_points_init:points})
 		#	test  = sess.run([weighted_sum_round_2], feed_dict = {y:y_annot, raw_points_init:points_raw})
-			test  = sess.run([y_pred ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
+			test  = sess.run([loss ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
           	 	print(test)
+			
 			#test  = sess.run([caps2_output], feed_dict = {y:y_annot, raw_points_init:points_raw})
                         #print(test)
 #			print(filename)
-			main_itr = main_itr+1
-	                print(filename)
-			print(main_itr)
-			loss_train, _ = sess.run([loss,training_op], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.6})
-			print(j)
-                	loss_train_vals.append(loss_train)
-                	print(np.mean(loss_train_vals))
+			if not np.isnan(test).any() and np.less(test, 100): 
+				main_itr = main_itr+1
+	                	print(filename)
+				print(main_itr)
+				loss_train, _ = sess.run([loss,training_op], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.6})
+				print(j)
+                		loss_train_vals.append(loss_train)
+                		print(np.mean(loss_train_vals))
 			#print(sess.run([batch]))
 		if False:# main_itr % 20 == 0:
 			#sess.run([grad_mean], feed_dict = {y:y_annot, raw_points_init:points})
