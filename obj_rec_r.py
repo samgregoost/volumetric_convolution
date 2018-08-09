@@ -782,803 +782,590 @@ def radial_poly(rho, m, n):
                 return tf.pow(rho, 6)
 
 ###########################################################################
+def get_harmonics(theta, scope):
+        with tf.variable_scope(scope):
+                y_0_0 =  spherical_harmonic(0.0,0.0)     * (tf.zeros(tf.shape(theta)) + 1)
+                y_0_1 =  spherical_harmonic(0.0,1.0)   * tf.cos(theta)
+                y_1_1 =   spherical_harmonic(1.0,1.0)   * (-1.0) * tf.sqrt(1-tf.square(tf.cos(theta)))
+                y_0_2 =  spherical_harmonic(0.0,2.0)    *(1.0/2.0) * (3* tf.square(tf.cos(theta)) - 1)
+                y_1_2 =   spherical_harmonic(1.0,2.0)   * (-1.0) * tf.sqrt(1-tf.square(tf.cos(theta))) * 3.0 * tf.cos(theta)
+                y_2_2 =   spherical_harmonic(2.0,2.0)   * (1-tf.square(tf.cos(theta))) * 3.0
+                y_0_3 =  spherical_harmonic(0.0,3.0)    * (1.0/2.0) * (5 * tf.pow(tf.cos(theta),3) - 3 * tf.cos(theta))
+                y_1_3 =   spherical_harmonic(1.0,3.0)    * (-1.0) *  (1.0/2.0)*  tf.sqrt(1-tf.square(tf.cos(theta))) * (15 * tf.square(tf.cos(theta)) - 3 )
+                y_2_3 =  spherical_harmonic(2.0,3.0)    * 15 * tf.cos(theta) * (1.0-tf.square(tf.cos(theta)))
+                y_3_3 =   spherical_harmonic(3.0,3.0)     * (-1.0) * 15.0 * tf.pow((1.0-tf.square(tf.cos(theta))),3.0/2.0)
+                y_0_4 =  spherical_harmonic(0.0,4.0) * (1.0/8.0) * (35.0 * tf.pow(tf.cos(theta),4) - 30.0 * tf.square(tf.cos(theta)) + 3)
+                y_1_4 = spherical_harmonic(1.0,4.0) * (-5.0/2.0) * (7.0 * tf.pow(tf.cos(theta),3) - 3.0 * tf.cos(theta)) * (tf.sqrt(1-tf.square(tf.cos(theta))))
+                y_2_4 = spherical_harmonic(2.0,4.0) * (15.0/2.0) * (7.0 * tf.square(tf.cos(theta)) - 1.0) * (1.0 - tf.square(tf.cos(theta)))
+                y_3_4 = spherical_harmonic(3.0,4.0) * (-105.0) * tf.cos(theta) * tf.pow(tf.sqrt(1.0-tf.square(tf.cos(theta))), 3.0/2)
+                y_4_4 = spherical_harmonic(4.0,4.0) * (105.0) * tf.square(1.0 - tf.square(tf.cos(theta)))
+		y_0_5 = spherical_harmonic(0.0,5.0) * (1.0/8.0)*tf.cos(theta)*(63.0*tf.pow(tf.cos(theta),4)-70.0*tf.square(tf.cos(theta)) +  15)
+		y_1_5 = spherical_harmonic(1.0,5.0)* (-15.0/8.0)*tf.sqrt(1-tf.square(tf.cos(theta)))*(21.0*tf.pow(tf.cos(theta),4) - 14.0*tf.square(tf.cos(theta)) + 1)
+		y_2_5 = spherical_harmonic(2.0,5.0)* (105.0/2.0)*tf.cos(theta)*(1-tf.square(tf.cos(theta)))*(3.0*tf.square(tf.cos(theta))-1)
+		y_3_5 = spherical_harmonic(3.0,5.0) * (-105.0/2.0)*tf.pow(tf.sin(theta),3)*(9.0*tf.square(tf.cos(theta))-1)
+		y_4_5 = spherical_harmonic(4.0,5.0)*945.0*tf.cos(theta)*tf.pow(tf.sin(theta),4)
+		y_5_5 = spherical_harmonic(5.0,5.0)*-945.0*tf.pow(tf.sin(theta),5)
+		y_0_6 = spherical_harmonic(0.0,6.0)*(1.0/16)*(231.0*tf.pow(tf.cos(theta),6)-315.0*tf.pow(tf.cos(theta),315.0)+105.0*tf.square(tf.cos(theta))-5)
+		y_1_6 = spherical_harmonic(1.0,6.0)*(-21.0/8.0)*tf.cos(theta)*(33.0*tf.pow(tf.cos(theta),4)-30.0*tf.square(tf.cos(theta))+5)*tf.sin(theta)
+		y_2_6 = spherical_harmonic(2.0,6.0)*(105.0/8.0)*tf.square(tf.sin(theta))*(33.0*tf.pow(tf.cos(theta),4)-18.0*tf.square(tf.cos(theta))+1)
+		y_3_6 = spherical_harmonic(3.0,6.0)*(-315.0/2.0)*(11*tf.square(tf.cos(theta))-3)*tf.cos(theta)*tf.pow(tf.sin(theta),3)
+		y_4_6 = spherical_harmonic(4.0,6.0)*(945.0/2.0)*(11.0*tf.square(tf.cos(theta))-1)*tf.pow(tf.sin(theta),4)
+		y_5_6 = spherical_harmonic(5.0,6.0)*-10395.0*tf.cos(theta)*tf.pow(tf.sin(theta),5)
+		y_6_6 = spherical_harmonic(6.0,6.0)*10395.0*tf.pow(tf.sin(theta),6)
 
-y_0_0 =  spherical_harmonic(0.0,0.0)     * (tf.zeros(tf.shape(theta)) + 1)
-y_0_1 =  spherical_harmonic(0.0,1.0)   * tf.cos(theta)
-y_1_1 =   spherical_harmonic(1.0,1.0)   * (-1.0) * tf.sqrt(1-tf.square(tf.cos(theta)))
-y_0_2 =  spherical_harmonic(0.0,2.0)    *(1.0/2.0) * (3* tf.square(tf.cos(theta)) - 1)
-y_1_2 =   spherical_harmonic(1.0,2.0)   * (-1.0) * tf.sqrt(1-tf.square(tf.cos(theta))) * 3.0 * tf.cos(theta)
-y_2_2 =   spherical_harmonic(2.0,2.0)   * (1-tf.square(tf.cos(theta))) * 3.0
-y_0_3 =  spherical_harmonic(0.0,3.0)    * (1.0/2.0) * (5 * tf.pow(tf.cos(theta),3) - 3 * tf.cos(theta))
-y_1_3 =   spherical_harmonic(1.0,3.0)    * (-1.0) *  (1.0/2.0)*  tf.sqrt(1-tf.square(tf.cos(theta))) * (15 * tf.square(tf.cos(theta)) - 3 )
-y_2_3 =  spherical_harmonic(2.0,3.0)    * 15 * tf.cos(theta) * (1.0-tf.square(tf.cos(theta)))
-y_3_3 =   spherical_harmonic(3.0,3.0)     * (-1.0) * 15.0 * tf.pow((1.0-tf.square(tf.cos(theta))),3.0/2.0)
-y_0_4 =  spherical_harmonic(0.0,4.0) * (1.0/8.0) * (35.0 * tf.pow(tf.cos(theta),4) - 30.0 * tf.square(tf.cos(theta)) + 3)
-y_1_4 = spherical_harmonic(1.0,4.0) * (-5.0/2.0) * (7.0 * tf.pow(tf.cos(theta),3) - 3.0 * tf.cos(theta)) * (tf.sqrt(1-tf.square(tf.cos(theta))))
-y_2_4 = spherical_harmonic(2.0,4.0) * (15.0/2.0) * (7.0 * tf.square(tf.cos(theta)) - 1.0) * (1.0 - tf.square(tf.cos(theta)))
-y_3_4 = spherical_harmonic(3.0,4.0) * (-105.0) * tf.cos(theta) * tf.pow(1.0-tf.square(tf.cos(theta)), 3.0/2)
-y_4_4 = spherical_harmonic(4.0,4.0) * (105.0) * tf.square(1.0 - tf.square(tf.cos(theta)))
-y_0_5 = spherical_harmonic(0.0,5.0) * (1.0/8.0)*tf.cos(theta)*(63.0*tf.pow(tf.cos(theta),4)-70.0*tf.square(tf.cos(theta)) +  15)
-y_1_5 = spherical_harmonic(1.0,5.0)* (-15.0/8.0)*tf.sqrt(1-tf.square(tf.cos(theta)))*(21.0*tf.pow(tf.cos(theta),4) - 14.0*tf.square(tf.cos(theta)) + 1)
-y_2_5 = spherical_harmonic(2.0,5.0)* (105.0/2.0)*tf.cos(theta)*(1-tf.square(tf.cos(theta)))*(3.0*tf.square(tf.cos(theta))-1)
-y_3_5 = spherical_harmonic(3.0,5.0) * (-105.0/2.0)*tf.pow(tf.sin(theta),3)*(9.0*tf.square(tf.cos(theta))-1)
-y_4_5 = spherical_harmonic(4.0,5.0)*945.0*tf.cos(theta)*tf.pow(tf.sin(theta),4)
-y_5_5 = spherical_harmonic(5.0,5.0)*-945.0*tf.pow(tf.sin(theta),5)
-y_0_6 = spherical_harmonic(0.0,6.0)*(1.0/16)*(231.0*tf.pow(tf.cos(theta),6)-315.0*tf.pow(tf.cos(theta),315.0)+105.0*tf.square(tf.cos(theta))-5)
-y_1_6 = spherical_harmonic(1.0,6.0)*(-21.0/8.0)*tf.cos(theta)*(33.0*tf.pow(tf.cos(theta),4)-30.0*tf.square(tf.cos(theta))+5)*tf.sin(theta)
-y_2_6 = spherical_harmonic(2.0,6.0)*(105.0/8.0)*tf.square(tf.sin(theta))*(33.0*tf.pow(tf.cos(theta),4)-18.0*tf.square(tf.cos(theta))+1)
-y_3_6 = spherical_harmonic(3.0,6.0)*(-315.0/2.0)*(11*tf.square(tf.cos(theta))-3)*tf.cos(theta)*tf.pow(tf.sin(theta),3)
-y_4_6 = spherical_harmonic(4.0,6.0)*(945.0/2.0)*(11.0*tf.square(tf.cos(theta))-1)*tf.pow(tf.sin(theta),4)
-y_5_6 = spherical_harmonic(5.0,6.0)*-10395.0*tf.cos(theta)*tf.pow(tf.sin(theta),5)
-y_6_6 = spherical_harmonic(6.0,6.0)*10395.0*tf.pow(tf.sin(theta),6)
-
-test_10 =  y_4_4
-print("1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print(math.factorial(4.0-4.0))
-
-
-u_0_0_0 = tf.multiply(y_0_0, tf.cos(0.0)) * radial_poly(r,0,0)
-u_0_1_1 = tf.multiply(y_0_1, tf.cos(0.0)) * radial_poly(r,1,1)
-u_1_1_1 = tf.multiply(y_1_1, tf.cos(phi)) * radial_poly(r,1,1)
-u_0_0_2 = tf.multiply(y_0_2, tf.cos(0.0)) * radial_poly(r,0,2)
-u_0_2_2 = tf.multiply(y_0_2, tf.cos(0.0)) * radial_poly(r,2,2)
-u_1_2_2 = tf.multiply(y_1_2, tf.cos(phi)) * radial_poly(r,2,2)
-u_2_2_2 = tf.multiply(y_2_2, tf.cos(2.0*phi)) * radial_poly(r,2,2)
-u_0_1_3 = tf.multiply(y_0_1, tf.cos(0.0)) * radial_poly(r,1,3)
-u_1_1_3 = tf.multiply(y_1_1, tf.cos(phi)) * radial_poly(r,1,3)
-u_0_3_3 = tf.multiply(y_0_3, tf.cos(0.0)) * radial_poly(r,3,3)
-u_1_3_3 = tf.multiply(y_1_3, tf.cos(phi)) * radial_poly(r,3,3)
-u_2_3_3 = tf.multiply(y_2_3, tf.cos(2.0*phi)) * radial_poly(r,3,3)
-u_3_3_3 = tf.multiply(y_3_3, tf.cos(3.0*phi)) * radial_poly(r,3,3)
-u_0_0_4 = tf.multiply(y_0_0, tf.cos(0.0)) * radial_poly(r,0,4)
-u_0_2_4 = tf.multiply(y_0_2, tf.cos(0.0)) * radial_poly(r,2,4)
-u_1_2_4 = tf.multiply(y_1_2, tf.cos(phi)) * radial_poly(r,2,4)
-u_2_2_4 = tf.multiply(y_2_2, tf.cos(2.0*phi)) * radial_poly(r,2,4)
-u_0_4_4 = tf.multiply(y_0_4, tf.cos(0.0))* radial_poly(r,4,4)
-u_1_4_4 = tf.multiply(y_1_4, tf.cos(phi)) * radial_poly(r,4,4)
-u_2_4_4 = tf.multiply(y_2_4, tf.cos(2.0 * phi))* radial_poly(r,4,4)
-u_3_4_4 = tf.multiply(y_3_4, tf.cos(3.0 * phi))* radial_poly(r,4,4)
-u_4_4_4 = tf.multiply(y_4_4, tf.cos(4.0 * phi))* radial_poly(r,4,4)
-u_0_1_5 = tf.multiply(y_0_1, tf.cos(0.0 * phi))* radial_poly(r,1,5)
-u_1_1_5 = tf.multiply(y_1_1, tf.cos(1.0 * phi))* radial_poly(r,1,5)
-u_0_3_5 = tf.multiply(y_0_3, tf.cos(0.0 * phi))* radial_poly(r,3,5)
-u_1_3_5 = tf.multiply(y_1_3, tf.cos(1.0 * phi))* radial_poly(r,3,5)
-u_2_3_5 = tf.multiply(y_2_3, tf.cos(2.0 * phi))* radial_poly(r,3,5)
-u_3_3_5 = tf.multiply(y_3_3, tf.cos(3.0 * phi))* radial_poly(r,3,5)
-u_0_5_5 = tf.multiply(y_0_5, tf.cos(0.0 * phi))* radial_poly(r,5,5)
-u_1_5_5 = tf.multiply(y_1_5, tf.cos(1.0 * phi))* radial_poly(r,5,5)
-u_2_5_5 = tf.multiply(y_2_5, tf.cos(2.0 * phi))* radial_poly(r,5,5)
-u_3_5_5 = tf.multiply(y_3_5, tf.cos(3.0 * phi))* radial_poly(r,5,5)
-u_4_5_5 = tf.multiply(y_4_5, tf.cos(4.0 * phi))* radial_poly(r,5,5)
-u_5_5_5 = tf.multiply(y_5_5, tf.cos(5.0 * phi))* radial_poly(r,5,5)
-u_0_0_6 = tf.multiply(y_0_0, tf.cos(0.0 * phi))* radial_poly(r,0,6)
-u_0_2_6 = tf.multiply(y_0_2, tf.cos(0.0 * phi))* radial_poly(r,2,6)
-u_1_2_6 = tf.multiply(y_1_2, tf.cos(1.0 * phi))* radial_poly(r,2,6)
-u_2_2_6 = tf.multiply(y_2_2, tf.cos(2.0 * phi))* radial_poly(r,2,6)
-u_0_4_6 = tf.multiply(y_0_4, tf.cos(0.0 * phi))* radial_poly(r,4,6)
-u_1_4_6 = tf.multiply(y_1_4, tf.cos(1.0 * phi))* radial_poly(r,4,6)
-u_2_4_6 = tf.multiply(y_2_4, tf.cos(2.0 * phi))* radial_poly(r,4,6)
-u_3_4_6 = tf.multiply(y_3_4, tf.cos(3.0 * phi))* radial_poly(r,4,6)
-u_4_4_6 = tf.multiply(y_4_4, tf.cos(4.0 * phi))* radial_poly(r,4,6)
-u_0_6_6 = tf.multiply(y_0_6, tf.cos(0.0 * phi))* radial_poly(r,6,6)
-u_1_6_6 = tf.multiply(y_1_6, tf.cos(1.0 * phi))* radial_poly(r,6,6)
-u_2_6_6 = tf.multiply(y_2_6, tf.cos(2.0 * phi))* radial_poly(r,6,6)
-u_3_6_6 = tf.multiply(y_3_6, tf.cos(3.0 * phi))* radial_poly(r,6,6)
-u_4_6_6 = tf.multiply(y_4_6, tf.cos(4.0 * phi))* radial_poly(r,6,6)
-u_5_6_6 = tf.multiply(y_5_6, tf.cos(5.0 * phi))* radial_poly(r,6,6)
-u_6_6_6 = tf.multiply(y_6_6, tf.cos(6.0 * phi))* radial_poly(r,6,6)
+		
+                return tf.concat([y_0_0,y_0_1,y_1_1,y_0_2,y_1_2,y_2_2,y_0_3,y_1_3,y_2_3,y_3_3,y_0_4,y_1_4,y_2_4,y_3_4,y_4_4, y_0_5, y_1_5,y_2_5, y_3_5, y_4_5, y_5_5, y_0_6, y_1_6, y_2_6, y_3_6,y_4_6,y_5_6,y_6_6],axis = 1)
 
 
-v_0_0_0 = tf.multiply(y_0_0, tf.sin(0.0)) * radial_poly(r,0,0)
-v_0_1_1 = tf.multiply(y_0_1, tf.sin(0.0)) * radial_poly(r,1,1)
-v_1_1_1 = tf.multiply(y_1_1, tf.sin(phi)) * radial_poly(r,1,1)
-v_0_0_2 = tf.multiply(y_0_2, tf.sin(0.0)) * radial_poly(r,0,2)
-v_0_2_2 = tf.multiply(y_0_2, tf.sin(0.0)) * radial_poly(r,2,2)
-v_1_2_2 = tf.multiply(y_1_2, tf.sin(phi)) * radial_poly(r,2,2)
-v_2_2_2 = tf.multiply(y_2_2, tf.sin(2.0*phi)) * radial_poly(r,2,2)
-v_0_1_3 = tf.multiply(y_0_1, tf.sin(0.0)) * radial_poly(r,1,3)
-v_1_1_3 = tf.multiply(y_1_1, tf.sin(phi)) * radial_poly(r,1,3)
-v_0_3_3 = tf.multiply(y_0_3, tf.sin(0.0)) * radial_poly(r,3,3)
-v_1_3_3 = tf.multiply(y_1_3, tf.sin(phi)) * radial_poly(r,3,3)
-v_2_3_3 = tf.multiply(y_2_3, tf.sin(2.0*phi)) * radial_poly(r,3,3)
-v_3_3_3 = tf.multiply(y_3_3, tf.sin(3.0*phi)) * radial_poly(r,3,3)
-v_0_0_4 = tf.multiply(y_0_0, tf.sin(0.0)) * radial_poly(r,0,4)
-v_0_2_4 = tf.multiply(y_0_2, tf.sin(0.0)) * radial_poly(r,2,4)
-v_1_2_4 = tf.multiply(y_1_2, tf.sin(phi)) * radial_poly(r,2,4)
-v_2_2_4 = tf.multiply(y_2_2, tf.sin(2.0*phi)) * radial_poly(r,2,4)
-v_0_4_4 = tf.multiply(y_0_4, tf.sin(0.0))* radial_poly(r,4,4)
-v_1_4_4 = tf.multiply(y_1_4, tf.sin(phi)) * radial_poly(r,4,4)
-v_2_4_4 = tf.multiply(y_2_4, tf.sin(2.0 * phi))* radial_poly(r,4,4)
-v_3_4_4 = tf.multiply(y_3_4, tf.sin(3.0 * phi))* radial_poly(r,4,4)
-v_4_4_4 = tf.multiply(y_4_4, tf.sin(4.0 * phi))* radial_poly(r,4,4)
-v_0_1_5 = tf.multiply(y_0_1, tf.sin(0.0 * phi))* radial_poly(r,1,5)
-v_1_1_5 = tf.multiply(y_1_1, tf.sin(1.0 * phi))* radial_poly(r,1,5)
-v_0_3_5 = tf.multiply(y_0_3, tf.sin(0.0 * phi))* radial_poly(r,3,5)
-v_1_3_5 = tf.multiply(y_1_3, tf.sin(1.0 * phi))* radial_poly(r,3,5)
-v_2_3_5 = tf.multiply(y_2_3, tf.sin(2.0 * phi))* radial_poly(r,3,5)
-v_3_3_5 = tf.multiply(y_3_3, tf.sin(3.0 * phi))* radial_poly(r,3,5)
-v_0_5_5 = tf.multiply(y_0_5, tf.sin(0.0 * phi))* radial_poly(r,5,5)
-v_1_5_5 = tf.multiply(y_1_5, tf.sin(1.0 * phi))* radial_poly(r,5,5)
-v_2_5_5 = tf.multiply(y_2_5, tf.sin(2.0 * phi))* radial_poly(r,5,5)
-v_3_5_5 = tf.multiply(y_3_5, tf.sin(3.0 * phi))* radial_poly(r,5,5)
-v_4_5_5 = tf.multiply(y_4_5, tf.sin(4.0 * phi))* radial_poly(r,5,5)
-v_5_5_5 = tf.multiply(y_5_5, tf.sin(5.0 * phi))* radial_poly(r,5,5)
-v_0_0_6 = tf.multiply(y_0_0, tf.sin(0.0 * phi))* radial_poly(r,0,6)
-v_0_2_6 = tf.multiply(y_0_2, tf.sin(0.0 * phi))* radial_poly(r,2,6)
-v_1_2_6 = tf.multiply(y_1_2, tf.sin(1.0 * phi))* radial_poly(r,2,6)
-v_2_2_6 = tf.multiply(y_2_2, tf.sin(2.0 * phi))* radial_poly(r,2,6)
-v_0_4_6 = tf.multiply(y_0_4, tf.sin(0.0 * phi))* radial_poly(r,4,6)
-v_1_4_6 = tf.multiply(y_1_4, tf.sin(1.0 * phi))* radial_poly(r,4,6)
-v_2_4_6 = tf.multiply(y_2_4, tf.sin(2.0 * phi))* radial_poly(r,4,6)
-v_3_4_6 = tf.multiply(y_3_4, tf.sin(3.0 * phi))* radial_poly(r,4,6)
-v_4_4_6 = tf.multiply(y_4_4, tf.sin(4.0 * phi))* radial_poly(r,4,6)
-v_0_6_6 = tf.multiply(y_0_6, tf.sin(0.0 * phi))* radial_poly(r,6,6)
-v_1_6_6 = tf.multiply(y_1_6, tf.sin(1.0 * phi))* radial_poly(r,6,6)
-v_2_6_6 = tf.multiply(y_2_6, tf.sin(2.0 * phi))* radial_poly(r,6,6)
-v_3_6_6 = tf.multiply(y_3_6, tf.sin(3.0 * phi))* radial_poly(r,6,6)
-v_4_6_6 = tf.multiply(y_4_6, tf.sin(4.0 * phi))* radial_poly(r,6,6)
-v_5_6_6 = tf.multiply(y_5_6, tf.sin(5.0 * phi))* radial_poly(r,6,6)
-v_6_6_6 = tf.multiply(y_6_6, tf.sin(6.0 * phi))* radial_poly(r,6,6)
+
+def get_zernike_mat(r,theta,phi,scope):
+        with tf.variable_scope(scope):
+                harmonics = get_harmonics(theta,scope)
+                u_0_0_0 = tf.multiply(tf.slice(harmonics,[0,0],[-1,1]), tf.cos(0.0)) * radial_poly(r,0,0)
+                u_0_1_1 = tf.multiply(tf.slice(harmonics,[0,1],[-1,1]), tf.cos(0.0)) * radial_poly(r,1,1)
+                u_1_1_1 = tf.multiply(tf.slice(harmonics,[0,2],[-1,1]), tf.cos(phi)) * radial_poly(r,1,1)
+                u_0_0_2 = tf.multiply(tf.slice(harmonics,[0,3],[-1,1]), tf.cos(0.0)) * radial_poly(r,0,2)
+                u_0_2_2 = tf.multiply(tf.slice(harmonics,[0,3],[-1,1]), tf.cos(0.0)) * radial_poly(r,2,2)
+                u_1_2_2 = tf.multiply(tf.slice(harmonics,[0,4],[-1,1]), tf.cos(phi)) * radial_poly(r,2,2)
+                u_2_2_2 = tf.multiply(tf.slice(harmonics,[0,5],[-1,1]), tf.cos(2.0*phi)) * radial_poly(r,2,2)
+                u_0_1_3 = tf.multiply(tf.slice(harmonics,[0,1],[-1,1]), tf.cos(0.0)) * radial_poly(r,1,3)
+                u_1_1_3 = tf.multiply(tf.slice(harmonics,[0,2],[-1,1]), tf.cos(phi)) * radial_poly(r,1,3)
+                u_0_3_3 = tf.multiply(tf.slice(harmonics,[0,6],[-1,1]), tf.cos(0.0)) * radial_poly(r,3,3)
+                u_1_3_3 = tf.multiply(tf.slice(harmonics,[0,7],[-1,1]), tf.cos(phi)) * radial_poly(r,3,3)
+                u_2_3_3 = tf.multiply(tf.slice(harmonics,[0,8],[-1,1]), tf.cos(2.0*phi)) * radial_poly(r,3,3)
+                u_3_3_3 = tf.multiply(tf.slice(harmonics,[0,9],[-1,1]), tf.cos(3.0*phi)) * radial_poly(r,3,3)
+                u_0_0_4 = tf.multiply(tf.slice(harmonics,[0,0],[-1,1]), tf.cos(0.0)) * radial_poly(r,0,4)
+                u_0_2_4 = tf.multiply(tf.slice(harmonics,[0,3],[-1,1]), tf.cos(0.0)) * radial_poly(r,2,4)
+                u_1_2_4 = tf.multiply(tf.slice(harmonics,[0,4],[-1,1]), tf.cos(phi)) * radial_poly(r,2,4)
+                u_2_2_4 = tf.multiply(tf.slice(harmonics,[0,5],[-1,1]), tf.cos(2.0*phi)) * radial_poly(r,2,4)
+                u_0_4_4 = tf.multiply(tf.slice(harmonics,[0,10],[-1,1]), tf.cos(0.0))* radial_poly(r,4,4)
+                u_1_4_4 = tf.multiply(tf.slice(harmonics,[0,11],[-1,1]), tf.cos(phi)) * radial_poly(r,4,4)
+                u_2_4_4 = tf.multiply(tf.slice(harmonics,[0,12],[-1,1]), tf.cos(2.0 * phi))* radial_poly(r,4,4)
+                u_3_4_4 = tf.multiply(tf.slice(harmonics,[0,13],[-1,1]), tf.cos(3.0 * phi))* radial_poly(r,4,4)
+                u_4_4_4 = tf.multiply(tf.slice(harmonics,[0,14],[-1,1]), tf.cos(4.0 * phi))* radial_poly(r,4,4)
+		u_0_1_5 = tf.multiply(tf.slice(harmonics,[0,1],[-1,1]), tf.cos(0.0 * phi))* radial_poly(r,1,5)
+		u_1_1_5 = tf.multiply(tf.slice(harmonics,[0,2],[-1,1]), tf.cos(1.0 * phi))* radial_poly(r,1,5)
+		u_0_3_5 = tf.multiply(tf.slice(harmonics,[0,6],[-1,1]), tf.cos(0.0 * phi))* radial_poly(r,3,5)
+		u_1_3_5 = tf.multiply(tf.slice(harmonics,[0,7],[-1,1]), tf.cos(1.0 * phi))* radial_poly(r,3,5)
+		u_2_3_5 = tf.multiply(tf.slice(harmonics,[0,8],[-1,1]), tf.cos(2.0 * phi))* radial_poly(r,3,5)
+		u_3_3_5 = tf.multiply(tf.slice(harmonics,[0,9],[-1,1]), tf.cos(3.0 * phi))* radial_poly(r,3,5)
+		u_0_5_5 = tf.multiply(tf.slice(harmonics,[0,15],[-1,1]), tf.cos(0.0 * phi))* radial_poly(r,5,5)
+		u_1_5_5 = tf.multiply(tf.slice(harmonics,[0,16],[-1,1]), tf.cos(1.0 * phi))* radial_poly(r,5,5)
+		u_2_5_5 = tf.multiply(tf.slice(harmonics,[0,17],[-1,1]), tf.cos(2.0 * phi))* radial_poly(r,5,5)
+		u_3_5_5 = tf.multiply(tf.slice(harmonics,[0,18],[-1,1]), tf.cos(3.0 * phi))* radial_poly(r,5,5)
+		u_4_5_5 = tf.multiply(tf.slice(harmonics,[0,19],[-1,1]), tf.cos(4.0 * phi))* radial_poly(r,5,5)
+		u_5_5_5 = tf.multiply(tf.slice(harmonics,[0,20],[-1,1]), tf.cos(5.0 * phi))* radial_poly(r,5,5)
+		u_0_0_6 = tf.multiply(tf.slice(harmonics,[0,0],[-1,1]), tf.cos(0.0 * phi))* radial_poly(r,0,6)
+		u_0_2_6 = tf.multiply(tf.slice(harmonics,[0,3],[-1,1]), tf.cos(0.0 * phi))* radial_poly(r,2,6)
+		u_1_2_6 = tf.multiply(tf.slice(harmonics,[0,4],[-1,1]), tf.cos(1.0 * phi))* radial_poly(r,2,6)
+		u_2_2_6 = tf.multiply(tf.slice(harmonics,[0,5],[-1,1]), tf.cos(2.0 * phi))* radial_poly(r,2,6)
+		u_0_4_6 = tf.multiply(tf.slice(harmonics,[0,10],[-1,1]), tf.cos(0.0 * phi))* radial_poly(r,4,6)
+		u_1_4_6 = tf.multiply(tf.slice(harmonics,[0,11],[-1,1]), tf.cos(1.0 * phi))* radial_poly(r,4,6)
+		u_2_4_6 = tf.multiply(tf.slice(harmonics,[0,13],[-1,1]), tf.cos(2.0 * phi))* radial_poly(r,4,6)
+		u_3_4_6 = tf.multiply(tf.slice(harmonics,[0,14],[-1,1]), tf.cos(3.0 * phi))* radial_poly(r,4,6)
+		u_4_4_6 = tf.multiply(tf.slice(harmonics,[0,14],[-1,1]), tf.cos(4.0 * phi))* radial_poly(r,4,6)
+		u_0_6_6 = tf.multiply(tf.slice(harmonics,[0,21],[-1,1]), tf.cos(0.0 * phi))* radial_poly(r,6,6)
+		u_1_6_6 = tf.multiply(tf.slice(harmonics,[0,22],[-1,1]), tf.cos(1.0 * phi))* radial_poly(r,6,6)
+		u_2_6_6 = tf.multiply(tf.slice(harmonics,[0,23],[-1,1]), tf.cos(2.0 * phi))* radial_poly(r,6,6)
+		u_3_6_6 = tf.multiply(tf.slice(harmonics,[0,24],[-1,1]), tf.cos(3.0 * phi))* radial_poly(r,6,6)
+		u_4_6_6 = tf.multiply(tf.slice(harmonics,[0,25],[-1,1]), tf.cos(4.0 * phi))* radial_poly(r,6,6)
+		u_5_6_6 = tf.multiply(tf.slice(harmonics,[0,26],[-1,1]), tf.cos(5.0 * phi))* radial_poly(r,6,6)
+		u_6_6_6 = tf.multiply(tf.slice(harmonics,[0,27],[-1,1]), tf.cos(6.0 * phi))* radial_poly(r,6,6)
+
+		v_0_0_0 = tf.multiply(tf.slice(harmonics,[0,0],[-1,1]), tf.sin(0.0)) * radial_poly(r,0,0)
+                v_0_1_1 = tf.multiply(tf.slice(harmonics,[0,1],[-1,1]), tf.sin(0.0)) * radial_poly(r,1,1)
+                v_1_1_1 = tf.multiply(tf.slice(harmonics,[0,2],[-1,1]), tf.sin(phi)) * radial_poly(r,1,1)
+                v_0_0_2 = tf.multiply(tf.slice(harmonics,[0,3],[-1,1]), tf.sin(0.0)) * radial_poly(r,0,2)
+                v_0_2_2 = tf.multiply(tf.slice(harmonics,[0,3],[-1,1]), tf.sin(0.0)) * radial_poly(r,2,2)
+                v_1_2_2 = tf.multiply(tf.slice(harmonics,[0,4],[-1,1]), tf.sin(phi)) * radial_poly(r,2,2)
+                v_2_2_2 = tf.multiply(tf.slice(harmonics,[0,5],[-1,1]), tf.sin(2.0*phi)) * radial_poly(r,2,2)
+                v_0_1_3 = tf.multiply(tf.slice(harmonics,[0,1],[-1,1]), tf.sin(0.0)) * radial_poly(r,1,3)
+                v_1_1_3 = tf.multiply(tf.slice(harmonics,[0,2],[-1,1]), tf.sin(phi)) * radial_poly(r,1,3)
+                v_0_3_3 = tf.multiply(tf.slice(harmonics,[0,6],[-1,1]), tf.sin(0.0)) * radial_poly(r,3,3)
+                v_1_3_3 = tf.multiply(tf.slice(harmonics,[0,7],[-1,1]), tf.sin(phi)) * radial_poly(r,3,3)
+                v_2_3_3 = tf.multiply(tf.slice(harmonics,[0,8],[-1,1]), tf.sin(2.0*phi)) * radial_poly(r,3,3)
+                v_3_3_3 = tf.multiply(tf.slice(harmonics,[0,9],[-1,1]), tf.sin(3.0*phi)) * radial_poly(r,3,3)
+                v_0_0_4 = tf.multiply(tf.slice(harmonics,[0,0],[-1,1]), tf.sin(0.0)) * radial_poly(r,0,4)
+                v_0_2_4 = tf.multiply(tf.slice(harmonics,[0,3],[-1,1]), tf.sin(0.0)) * radial_poly(r,2,4)
+                v_1_2_4 = tf.multiply(tf.slice(harmonics,[0,4],[-1,1]), tf.sin(phi)) * radial_poly(r,2,4)
+                v_2_2_4 = tf.multiply(tf.slice(harmonics,[0,5],[-1,1]), tf.sin(2.0*phi)) * radial_poly(r,2,4)
+                v_0_4_4 = tf.multiply(tf.slice(harmonics,[0,10],[-1,1]), tf.sin(0.0))* radial_poly(r,4,4)
+                v_1_4_4 = tf.multiply(tf.slice(harmonics,[0,11],[-1,1]), tf.sin(phi)) * radial_poly(r,4,4)
+                v_2_4_4 = tf.multiply(tf.slice(harmonics,[0,12],[-1,1]), tf.sin(2.0 * phi))* radial_poly(r,4,4)
+                v_3_4_4 = tf.multiply(tf.slice(harmonics,[0,13],[-1,1]), tf.sin(3.0 * phi))* radial_poly(r,4,4)
+                v_4_4_4 = tf.multiply(tf.slice(harmonics,[0,14],[-1,1]), tf.sin(4.0 * phi))* radial_poly(r,4,4)
+                v_0_1_5 = tf.multiply(tf.slice(harmonics,[0,1],[-1,1]), tf.sin(0.0 * phi))* radial_poly(r,1,5)
+                v_1_1_5 = tf.multiply(tf.slice(harmonics,[0,2],[-1,1]), tf.sin(1.0 * phi))* radial_poly(r,1,5)
+                v_0_3_5 = tf.multiply(tf.slice(harmonics,[0,6],[-1,1]), tf.sin(0.0 * phi))* radial_poly(r,3,5)
+                v_1_3_5 = tf.multiply(tf.slice(harmonics,[0,7],[-1,1]), tf.sin(1.0 * phi))* radial_poly(r,3,5)
+                v_2_3_5 = tf.multiply(tf.slice(harmonics,[0,8],[-1,1]), tf.sin(2.0 * phi))* radial_poly(r,3,5)
+                v_3_3_5 = tf.multiply(tf.slice(harmonics,[0,9],[-1,1]), tf.sin(3.0 * phi))* radial_poly(r,3,5)
+                v_0_5_5 = tf.multiply(tf.slice(harmonics,[0,15],[-1,1]), tf.sin(0.0 * phi))* radial_poly(r,5,5)
+                v_1_5_5 = tf.multiply(tf.slice(harmonics,[0,16],[-1,1]), tf.sin(1.0 * phi))* radial_poly(r,5,5)
+                v_2_5_5 = tf.multiply(tf.slice(harmonics,[0,17],[-1,1]), tf.sin(2.0 * phi))* radial_poly(r,5,5)
+                v_3_5_5 = tf.multiply(tf.slice(harmonics,[0,18],[-1,1]), tf.sin(3.0 * phi))* radial_poly(r,5,5)
+                v_4_5_5 = tf.multiply(tf.slice(harmonics,[0,19],[-1,1]), tf.sin(4.0 * phi))* radial_poly(r,5,5)
+                v_5_5_5 = tf.multiply(tf.slice(harmonics,[0,20],[-1,1]), tf.sin(5.0 * phi))* radial_poly(r,5,5)
+		v_0_0_6 = tf.multiply(tf.slice(harmonics,[0,0],[-1,1]), tf.sin(0.0 * phi))* radial_poly(r,0,6)
+                v_0_2_6 = tf.multiply(tf.slice(harmonics,[0,3],[-1,1]), tf.sin(0.0 * phi))* radial_poly(r,2,6)
+                v_1_2_6 = tf.multiply(tf.slice(harmonics,[0,4],[-1,1]), tf.sin(1.0 * phi))* radial_poly(r,2,6)
+                v_2_2_6 = tf.multiply(tf.slice(harmonics,[0,5],[-1,1]), tf.sin(2.0 * phi))* radial_poly(r,2,6)
+                v_0_4_6 = tf.multiply(tf.slice(harmonics,[0,10],[-1,1]), tf.sin(0.0 * phi))* radial_poly(r,4,6)
+                v_1_4_6 = tf.multiply(tf.slice(harmonics,[0,11],[-1,1]), tf.sin(1.0 * phi))* radial_poly(r,4,6)
+                v_2_4_6 = tf.multiply(tf.slice(harmonics,[0,13],[-1,1]), tf.sin(2.0 * phi))* radial_poly(r,4,6)
+                v_3_4_6 = tf.multiply(tf.slice(harmonics,[0,14],[-1,1]), tf.sin(3.0 * phi))* radial_poly(r,4,6)
+                v_4_4_6 = tf.multiply(tf.slice(harmonics,[0,14],[-1,1]), tf.sin(4.0 * phi))* radial_poly(r,4,6)
+                v_0_6_6 = tf.multiply(tf.slice(harmonics,[0,21],[-1,1]), tf.sin(0.0 * phi))* radial_poly(r,6,6)
+                v_1_6_6 = tf.multiply(tf.slice(harmonics,[0,22],[-1,1]), tf.sin(1.0 * phi))* radial_poly(r,6,6)
+                v_2_6_6 = tf.multiply(tf.slice(harmonics,[0,23],[-1,1]), tf.sin(2.0 * phi))* radial_poly(r,6,6)
+                v_3_6_6 = tf.multiply(tf.slice(harmonics,[0,24],[-1,1]), tf.sin(3.0 * phi))* radial_poly(r,6,6)
+                v_4_6_6 = tf.multiply(tf.slice(harmonics,[0,25],[-1,1]), tf.sin(4.0 * phi))* radial_poly(r,6,6)
+                v_5_6_6 = tf.multiply(tf.slice(harmonics,[0,26],[-1,1]), tf.sin(5.0 * phi))* radial_poly(r,6,6)
+                v_6_6_6 = tf.multiply(tf.slice(harmonics,[0,27],[-1,1]), tf.sin(6.0 * phi))* radial_poly(r,6,6)		
+
+		V = tf.concat([v_0_0_0, v_0_1_1, v_1_1_1, v_0_0_2, v_0_2_2, v_1_2_2, v_2_2_2,
+                        v_0_1_3, v_1_1_3, v_0_3_3, v_1_3_3, v_2_3_3, v_3_3_3,
+                                v_0_0_4, v_0_2_4, v_1_2_4, v_2_2_4, v_0_4_4, v_1_4_4, v_2_4_4, v_3_4_4, v_4_4_4, v_0_1_5,v_1_1_5,v_0_3_5,v_1_3_5,v_2_3_5,v_3_3_5, v_0_5_5,v_1_5_5,v_2_5_5,v_3_5_5,v_4_5_5,v_5_5_5, v_0_0_6,v_0_2_6,v_1_2_6,v_2_2_6,v_0_4_6,v_1_4_6,v_2_4_6,v_3_4_6,v_4_4_6,v_0_6_6,v_1_6_6,v_2_6_6,v_3_6_6,v_4_6_6,v_5_6_6,v_6_6_6] ,  axis=1)
 
 
+		U = tf.concat([u_0_0_0, u_0_1_1, u_1_1_1, u_0_0_2, u_0_2_2, u_1_2_2, u_2_2_2,
+                        u_0_1_3, u_1_1_3, u_0_3_3, u_1_3_3, u_2_3_3, u_3_3_3,
+                                u_0_0_4, u_0_2_4, u_1_2_4, u_2_2_4, u_0_4_4, u_1_4_4, u_2_4_4, u_3_4_4, u_4_4_4, u_0_1_5,u_1_1_5,u_0_3_5,u_1_3_5,u_2_3_5,u_3_3_5, u_0_5_5,u_1_5_5,u_2_5_5,u_3_5_5,u_4_5_5,u_5_5_5, v_0_0_6,v_0_2_6,v_1_2_6,v_2_2_6,v_0_4_6,v_1_4_6,v_2_4_6,v_3_4_6,v_4_4_6,v_0_6_6,v_1_6_6,v_2_6_6,v_3_6_6,v_4_6_6,v_5_6_6,v_6_6_6] ,  axis=1)
+
+		X_ = tf.concat([U,V] ,  axis=1)
+		
+		return X_
 ################################################################################################
 keep_prob = tf.placeholder(tf.float32, name="keep_probabilty")
 
-
-V = tf.concat([v_0_0_0, v_0_1_1, v_1_1_1, v_0_0_2, v_0_2_2, v_1_2_2, v_2_2_2, 
-			v_0_1_3, v_1_1_3, v_0_3_3, v_1_3_3, v_2_3_3, v_3_3_3, 
-				v_0_0_4, v_0_2_4, v_1_2_4, v_2_2_4, v_0_4_4, v_1_4_4, v_2_4_4, v_3_4_4, v_4_4_4, v_0_1_5,v_1_1_5,v_0_3_5,v_1_3_5,v_2_3_5,v_3_3_5, v_0_5_5,v_1_5_5,v_2_5_5,v_3_5_5,v_4_5_5,v_5_5_5, v_0_0_6,v_0_2_6,v_1_2_6,v_2_2_6,v_0_4_6,v_1_4_6,v_2_4_6,v_3_4_6,v_4_4_6,v_0_6_6,v_1_6_6,v_2_6_6,v_3_6_6,v_4_6_6,v_5_6_6,v_6_6_6] ,  axis=1)
-
-
-U = tf.concat([u_0_0_0, u_0_1_1, u_1_1_1, u_0_0_2, u_0_2_2, u_1_2_2, u_2_2_2, 
-                        u_0_1_3, u_1_1_3, u_0_3_3, u_1_3_3, u_2_3_3, u_3_3_3, 
-                                u_0_0_4, u_0_2_4, u_1_2_4, u_2_2_4, u_0_4_4, u_1_4_4, u_2_4_4, u_3_4_4, u_4_4_4, u_0_1_5,u_1_1_5,u_0_3_5,u_1_3_5,u_2_3_5,u_3_3_5, u_0_5_5,u_1_5_5,u_2_5_5,u_3_5_5,u_4_5_5,u_5_5_5, v_0_0_6,v_0_2_6,v_1_2_6,v_2_2_6,v_0_4_6,v_1_4_6,v_2_4_6,v_3_4_6,v_4_4_6,v_0_6_6,v_1_6_6,v_2_6_6,v_3_6_6,v_4_6_6,v_5_6_6,v_6_6_6] ,  axis=1)
-
-X_ = tf.concat([U,V] ,  axis=1)
-
-X__1 = tf.slice(X_, [0,0], [tf.shape(r_one)[0], -1])
-X__2 = tf.slice(X_, [tf.shape(r_one)[0], 0], [tf.shape(r_two)[0], -1])
-X__3 = tf.slice(X_, [tf.shape(r_two)[0] + tf.shape(r_one)[0], 0], [tf.shape(r_three)[0], -1])
-X__4 = tf.slice(X_, [tf.shape(r_two)[0] + tf.shape(r_one)[0]+ tf.shape(r_three)[0], 0], [tf.shape(r_four)[0], -1])
-
-
-
-X_10  = 0.0001 * tf.transpose(X__1,[1,0] )
-X_20  = 0.0001 * tf.transpose(X__2,[1,0] )
-X_30  = 0.0001 * tf.transpose(X__3,[1,0] )
-X_40  = 0.0001 * tf.transpose(X__4,[1,0] )
-
-
-X_cal_1, p_1 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__1),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__1),3.0*tf.eye(100)-tf.matmul(x,X__1))),x),i+1)
-    ,(X_10, 0))
-
-X_cal_2, p_2 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__2),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__2),3.0*tf.eye(100)-tf.matmul(x,X__2))),x),i+1)
-    ,(X_20, 0))
-
-X_cal_3, p_3 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__3),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__3),3.0*tf.eye(100)-tf.matmul(x,X__3))),x),i+1)
-    ,(X_30, 0))
-
-X_cal_4, p_4 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__4),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__4),3.0*tf.eye(100)-tf.matmul(x,X__4))),x),i+1)
-    ,(X_40, 0))
-
-
-
-C_1 = tf.tile(tf.expand_dims(tf.matmul(X_cal_1,r_one), axis =0), [64,1,1])
-
-C_2 = tf.tile(tf.expand_dims(tf.matmul(X_cal_2, r_two), axis =0), [64,1,1])
-C_3 = tf.tile(tf.expand_dims(tf.matmul(X_cal_3,r_three), axis =0), [64,1,1])
-C_4 = tf.tile(tf.expand_dims(tf.matmul(X_cal_4,r_four), axis =0), [64,1,1])
-
-###############################################################################################################################
-
-
-x_filter1 =  tf.get_variable("a_xfilter1", [64,150,1])
-x_filter2 =  tf.get_variable("a_xfilter2", [64,150,1])
-x_filter3 =  tf.get_variable("a_xfilter3", [64,150,1])
-x_filter4 =  tf.get_variable("a_xfilter4", [64,150,1])
-
-C_1f = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_1,[0,0],[100,150]), axis =0), [64,1,1]), x_filter1)
-C_2f = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_2,[0,0],[100,150]), axis =0), [64,1,1]), x_filter2)
-C_3f = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_3,[0,0],[100,150]), axis =0), [64,1,1]), x_filter3)
-C_4f = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_4,[0,0],[100,150]), axis =0), [64,1,1]), x_filter4)
-
-
-f_mapz1 = tf.matmul(C_1, tf.transpose(C_1f, [0,2,1]))
-f_mapz2 = tf.matmul(C_2, tf.transpose(C_2f, [0,2,1]))
-f_mapz3 = tf.matmul(C_3, tf.transpose(C_3f, [0,2,1]))
-f_mapz4 = tf.matmul(C_4, tf.transpose(C_4f, [0,2,1]))
-#tf.maximum(tf.maximum(f_mapz1,f_mapz2),f_mapz3)
-
-f_mapz = tf.nn.dropout(tf.nn.relu(tf.concat([f_mapz1,f_mapz2,f_mapz3, f_mapz4],axis = 2)), keep_prob = keep_prob)
-#_mapz_ = tf.concat([f_mapz1,f_mapz2,f_mapz3, f_mapz4],axis = 2)
-
-#f_mapz = tf.nn.dropout(tf.nn.relu(tf.divide(f_mapz_, tf.abs(tf.reduce_max(f_mapz_, axis = [1,2], keep_dims = True)))), keep_prob = keep_prob)
-
-#########################################################################################3
-
-X__1i = tf.slice(X_, [tf.shape(r_two)[0] + tf.shape(r_one)[0] + tf.shape(r_three)[0] + tf.shape(r_four)[0],0], [tf.shape(r_one_i)[0], -1])
-X__2i = tf.slice(X_, [ tf.shape(r_two)[0] + tf.shape(r_one)[0] + tf.shape(r_three)[0] + tf.shape(r_four)[0]  +tf.shape(r_one_i)[0],0   ],[ tf.shape(r_two_i)[0]  , -1])
-X__3i = tf.slice(X_, [tf.shape(r_two)[0] + tf.shape(r_one)[0] + tf.shape(r_three)[0] + tf.shape(r_four)[0]+tf.shape(r_one_i)[0] +  tf.shape(r_two_i)[0], 0], [tf.shape(r_three_i)[0], -1])
-X__4i = tf.slice(X_, [tf.shape(r_two)[0] + tf.shape(r_one)[0] + tf.shape(r_three)[0] + tf.shape(r_four)[0]+tf.shape(r_one_i)[0] +  tf.shape(r_two_i)[0] + tf.shape(r_three_i)[0], 0], [tf.shape(r_four_i)[0], -1])
-
-
-
-X_10i  = 0.0001 * tf.transpose(X__1i,[1,0] )
-X_20i  = 0.0001 * tf.transpose(X__2i,[1,0] )
-X_30i  = 0.0001 * tf.transpose(X__3i,[1,0] )
-X_40i  = 0.0001 * tf.transpose(X__4i,[1,0] )
-
-
-X_cal_1i, p_1 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__1i),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__1i),3.0*tf.eye(100)-tf.matmul(x,X__1i))),x),i+1)
-    ,(X_10i, 0))
-
-X_cal_2i, p_2 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__2i),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__2i),3.0*tf.eye(100)-tf.matmul(x,X__2i))),x),i+1)
-    ,(X_20i, 0))
-
-X_cal_3i, p_3 = tf.while_loop(lambda x, i: tf.logical_and(i < 3 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__3i),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__3i),3.0*tf.eye(100)-tf.matmul(x,X__3i))),x),i+1)
-    ,(X_30i, 0))
-
-X_cal_4i, p_4 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__4i),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__4i),3.0*tf.eye(100)-tf.matmul(x,X__4i))),x),i+1)
-    ,(X_40i,0))
-
-
-
-C_1i = tf.tile(tf.expand_dims(tf.matmul(X_cal_1i,r_one_i), axis =0), [64,1,1])
-
-C_2i = tf.tile(tf.expand_dims(tf.matmul(X_cal_2i, r_two_i), axis =0), [64,1,1])
-C_3i = tf.tile(tf.expand_dims(tf.matmul(X_cal_3i,r_three_i), axis =0), [64,1,1])
-C_4i = tf.tile(tf.expand_dims(tf.matmul(X_cal_4i,r_four_i), axis =0), [64,1,1])
-
-##########################################################################
-
-
-xi_filter1 =  tf.get_variable("a_xfilter1i", [64, 150,1])
-xi_filter2 =  tf.get_variable("a_xfilter2i", [64, 150,1])
-xi_filter3 =  tf.get_variable("a_xfilter3i", [64, 150,1])
-xi_filter4 =  tf.get_variable("a_xfilter4i", [64, 150,1])
-
-C_1fi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_1i,[0,0],[100,150]),axis =0), [64,1,1]), xi_filter1)
-C_2fi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_2i,[0,0],[100,150]),axis =0), [64,1,1]), xi_filter2)
-C_3fi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_3i,[0,0],[100,150]),axis =0), [64,1,1]), xi_filter3)
-C_4fi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_4i,[0,0],[100,150]),axis =0), [64,1,1]), xi_filter4)
-
-
-f_mapz1i = tf.matmul(C_1i, tf.transpose(C_1fi, [0,2,1]))
-f_mapz2i = tf.matmul(C_2i, tf.transpose(C_2fi, [0,2,1]))
-f_mapz3i = tf.matmul(C_3i, tf.transpose(C_3fi, [0,2,1]))
-f_mapz4i = tf.matmul(C_4i, tf.transpose(C_4fi, [0,2,1]))
-
-f_mapzi = tf.nn.dropout(tf.nn.relu(tf.concat([f_mapz1i,f_mapz2i,f_mapz3i, f_mapz4i],axis = 2)),keep_prob = keep_prob)
-#f_mapzi_ = tf.concat([f_mapz1i,f_mapz2i,f_mapz3i, f_mapz4i],axis = 2)
-
-#f_mapzi = tf.nn.dropout(tf.nn.relu(tf.divide(f_mapzi_, tf.abs(tf.reduce_max(f_mapzi_, axis = [1,2], keep_dims = True)))),keep_prob = keep_prob)
-##########################################################################################
-
-s1 = tf.shape(r_two)[0] + tf.shape(r_one)[0] + tf.shape(r_three)[0] + tf.shape(r_four)[0] + tf.shape(r_one_i)[0] + tf.shape(r_two_i)[0] + tf.shape(r_three_i)[0] + tf.shape(r_four_i)[0]
-s2 = s1 + tf.shape(r_onex)[0]
-s3 = s2 + tf.shape(r_twox)[0]
-s4 = s3 + tf.shape(r_threex)[0]
-
-
-X__1x = tf.slice(X_, [s1,0], [tf.shape(r_onex)[0], -1])
-X__2x = tf.slice(X_, [ s2, 0   ],[ tf.shape(r_twox)[0]  , -1])
-X__3x = tf.slice(X_, [s3, 0], [tf.shape(r_threex)[0], -1])
-X__4x = tf.slice(X_, [s4, 0], [tf.shape(r_fourx)[0], -1])
-
-
-
-X_10x  = 0.0001 * tf.transpose(X__1x,[1,0] )
-X_20x  = 0.0001 * tf.transpose(X__2x,[1,0] )
-X_30x  = 0.0001 * tf.transpose(X__3x,[1,0] )
-X_40x  = 0.0001 * tf.transpose(X__4x,[1,0] )
-
-
-X_cal_1x, p_1 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__1x),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__1x),3.0*tf.eye(100)-tf.matmul(x,X__1x))),x),i+1)
-    ,(X_10x, 0))
-
-X_cal_2x, p_2 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__2x),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__2x),3.0*tf.eye(100)-tf.matmul(x,X__2x))),x),i+1)
-    ,(X_20x, 0))
-
-X_cal_3x, p_3 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__3x),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__3x),3.0*tf.eye(100)-tf.matmul(x,X__3x))),x),i+1)
-    ,(X_30x, 0))
-
-X_cal_4x, p_4 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__4x),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__4x),3.0*tf.eye(100)-tf.matmul(x,X__4x))),x),i+1)
-    ,(X_40x,0))
-
-
-
-C_1x = tf.tile(tf.expand_dims(tf.matmul(X_cal_1x,r_onex), axis =0), [64,1,1])
-
-C_2x = tf.tile(tf.expand_dims(tf.matmul(X_cal_2x, r_twox), axis =0), [64,1,1])
-C_3x = tf.tile(tf.expand_dims(tf.matmul(X_cal_3x,r_threex), axis =0), [64,1,1])
-C_4x = tf.tile(tf.expand_dims(tf.matmul(X_cal_4x,r_fourx), axis =0), [64,1,1])
-###########################################################################################################################################33
-
-x_filter1x =  tf.get_variable("a_xfilter1x", [64,150,1])
-x_filter2x =  tf.get_variable("a_xfilter2x", [64,150,1])
-x_filter3x =  tf.get_variable("a_xfilter3x", [64,150,1])
-x_filter4x =  tf.get_variable("a_xfilter4x", [64, 150,1])
-
-C_1fx = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_1x,[0,0],[100,150]),axis =0), [64,1,1]), x_filter1x)
-C_2fx = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_2x,[0,0],[100,150]),axis =0), [64,1,1]), x_filter2x)
-C_3fx = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_3x,[0,0],[100,150]),axis =0), [64,1,1]), x_filter3x)
-C_4fx = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_4x,[0,0],[100,150]),axis =0), [64,1,1]), x_filter4x)
-
-f_mapx1x = tf.matmul(C_1x, tf.transpose(C_1fx, [0,2,1]))
-f_mapx2x = tf.matmul(C_2x, tf.transpose(C_2fx, [0,2,1]))
-f_mapx3x = tf.matmul(C_3x, tf.transpose(C_3fx, [0,2,1]))
-f_mapx4x = tf.matmul(C_4x, tf.transpose(C_4fx, [0,2,1]))
-
-f_mapx = tf.nn.dropout(tf.nn.relu(tf.concat([f_mapx1x,f_mapx2x,f_mapx3x, f_mapx4x],axis = 2)),keep_prob = keep_prob)
-#f_mapx_ = tf.concat([f_mapx1x,f_mapx2x,f_mapx3x, f_mapx4x],axis = 2)
-
-#f_mapx = tf.nn.dropout(tf.nn.relu(tf.divide(f_mapx_, tf.abs(tf.reduce_max(f_mapx_, axis = [1,2], keep_dims = True)))),keep_prob = keep_prob)
-
-##############################################################33
-
-s5 = s4 + tf.shape(r_fourx)[0]
-s6= s5 + tf.shape(r_onexi)[0]
-s7 = s6 + tf.shape(r_twoxi)[0]
-s8 = s7 + tf.shape(r_threexi)[0]
-
-
-X__1xi = tf.slice(X_, [s5,0], [tf.shape(r_onexi)[0], -1])
-X__2xi = tf.slice(X_, [ s6, 0   ],[ tf.shape(r_twoxi)[0]  , -1])
-X__3xi = tf.slice(X_, [s7, 0], [tf.shape(r_threexi)[0], -1])
-X__4xi = tf.slice(X_, [s8, 0], [tf.shape(r_fourxi)[0], -1])
-
-
-
-X_10xi  = 0.0001 * tf.transpose(X__1xi,[1,0] )
-X_20xi  = 0.0001 * tf.transpose(X__2xi,[1,0] )
-X_30xi  = 0.0001 * tf.transpose(X__3xi,[1,0] )
-X_40xi  = 0.0001 * tf.transpose(X__4xi,[1,0] )
-
-X_cal_1xi, p_1 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__1xi),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__1xi),3.0*tf.eye(100)-tf.matmul(x,X__1xi))),x),i+1)
-    ,(X_10xi, 0))
-
-X_cal_2xi, p_2 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__2xi),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__2xi),3.0*tf.eye(100)-tf.matmul(x,X__2xi))),x),i+1)
-    ,(X_20xi, 0))
-
-X_cal_3xi, p_3 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__3xi),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__3xi),3.0*tf.eye(100)-tf.matmul(x,X__3xi))),x),i+1)
-    ,(X_30xi, 0))
-
-X_cal_4xi, p_4 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__4xi),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__4xi),3.0*tf.eye(100)-tf.matmul(x,X__4xi))),x),i+1)
-    ,(X_40xi,0))
-
-
-
-C_1xi = tf.tile(tf.expand_dims(tf.matmul(X_cal_1xi,r_onexi), axis =0), [64,1,1])
-
-C_2xi = tf.tile(tf.expand_dims(tf.matmul(X_cal_2xi, r_twoxi), axis =0), [64,1,1])
-C_3xi = tf.tile(tf.expand_dims(tf.matmul(X_cal_3xi,r_threexi), axis =0), [64,1,1])
-C_4xi = tf.tile(tf.expand_dims(tf.matmul(X_cal_4xi,r_fourxi), axis =0), [64,1,1])
-#####################################################################3
-
-
-x_filter1xi =  tf.get_variable("a_xfilter1xi", [64,150,1])
-x_filter2xi =  tf.get_variable("a_xfilter2xi", [64,150,1])
-x_filter3xi =  tf.get_variable("a_xfilter3xi", [64,150,1])
-x_filter4xi =  tf.get_variable("a_xfilter4xi", [64, 150,1])
-
-C_1fxi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_1xi,[0,0],[100,150]),axis =0), [64,1,1]), x_filter1xi)
-C_2fxi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_2xi,[0,0],[100,150]),axis =0), [64,1,1]), x_filter2xi)
-C_3fxi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_3xi,[0,0],[100,150]),axis =0), [64,1,1]), x_filter3xi)
-C_4fxi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_4xi,[0,0],[100,150]),axis =0), [64,1,1]), x_filter4xi)
-
-
-f_mapx1xi = tf.matmul(C_1xi, tf.transpose(C_1fxi, [0,2,1]))
-f_mapx2xi = tf.matmul(C_2xi, tf.transpose(C_2fxi, [0,2,1]))
-f_mapx3xi = tf.matmul(C_3xi, tf.transpose(C_3fxi, [0,2,1]))
-f_mapx4xi = tf.matmul(C_4xi, tf.transpose(C_4fxi, [0,2,1]))
-
-
-f_mapxxi = tf.nn.dropout(tf.nn.relu(tf.concat([f_mapx1xi,f_mapx2xi,f_mapx3xi, f_mapx4xi],axis = 2)), keep_prob = keep_prob)
-
-#f_mapxxi_ = tf.concat([f_mapx1xi,f_mapx2xi,f_mapx3xi, f_mapx4xi],axis = 2)
-#f_mapxxi = tf.nn.dropout(tf.nn.relu(tf.divide(f_mapxxi_, tf.abs(tf.reduce_max(f_mapxxi_, axis = [1,2], keep_dims = True)))),keep_prob = keep_prob)
-
-
-###################################################################################################################################3
-
-
-s9 = s8 + tf.shape(r_fourxi)[0]
-s10= s9 + tf.shape(r_oney)[0]
-s11= s10+ tf.shape(r_twoy)[0]
-s12 = s11+ tf.shape(r_threey)[0]
-
-
-X__1y = tf.slice(X_, [s9,0], [tf.shape(r_oney)[0], -1])
-X__2y = tf.slice(X_, [ s10, 0   ],[ tf.shape(r_twoy)[0]  , -1])
-X__3y = tf.slice(X_, [s11, 0], [tf.shape(r_threey)[0], -1])
-X__4y = tf.slice(X_, [s12, 0], [tf.shape(r_foury)[0], -1])
-
-
-
-X_10y  = 0.0001 * tf.transpose(X__1y,[1,0] )
-X_20y  = 0.0001 * tf.transpose(X__2y,[1,0] )
-X_30y  = 0.0001 * tf.transpose(X__3y,[1,0] )
-X_40y  = 0.0001 * tf.transpose(X__4y,[1,0] )
-
-X_cal_1y, p_1 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__1y),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__1y),3.0*tf.eye(100)-tf.matmul(x,X__1y))),x),i+1)
-    ,(X_10y, 0))
-
-X_cal_2y, p_2 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__2y),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__2y),3.0*tf.eye(100)-tf.matmul(x,X__2y))),x),i+1)
-    ,(X_20y, 0))
-
-X_cal_3y, p_3 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__3y),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__3y),3.0*tf.eye(100)-tf.matmul(x,X__3y))),x),i+1)
-    ,(X_30y, 0))
-
-X_cal_4y, p_4 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__4y),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__4y),3.0*tf.eye(100)-tf.matmul(x,X__4y))),x),i+1)
-    ,(X_40y,0))
-
-
-
-
-C_1y = tf.tile(tf.expand_dims(tf.matmul(X_cal_1y,r_oney), axis =0), [64,1,1])
-
-C_2y = tf.tile(tf.expand_dims(tf.matmul(X_cal_2y, r_twoy), axis =0), [64,1,1])
-C_3y = tf.tile(tf.expand_dims(tf.matmul(X_cal_3y,r_threey), axis =0), [64,1,1])
-C_4y = tf.tile(tf.expand_dims(tf.matmul(X_cal_4y,r_foury), axis =0), [64,1,1])
-###############################################################################################
-
-x_filter1y =  tf.get_variable("a_xfilter1y", [64,150,1])
-x_filter2y =  tf.get_variable("a_xfilter2y", [64,150,1])
-x_filter3y =  tf.get_variable("a_xfilter3y", [64,150,1])
-x_filter4y =  tf.get_variable("a_xfilter4y", [64, 150,1])
-
-C_1fy = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_1y,[0,0],[100,150]),axis =0), [64,1,1]), x_filter1y)
-C_2fy = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_2y,[0,0],[100,150]),axis =0), [64,1,1]), x_filter2y)
-C_3fy = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_3y,[0,0],[100,150]),axis =0), [64,1,1]), x_filter3y)
-C_4fy = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_4y,[0,0],[100,150]),axis =0), [64,1,1]), x_filter4y)
-
-f_mapx1y = tf.matmul(C_1y, tf.transpose(C_1fy, [0,2,1]))
-f_mapx2y = tf.matmul(C_2y, tf.transpose(C_2fy, [0,2,1]))
-f_mapx3y = tf.matmul(C_3y, tf.transpose(C_3fy, [0,2,1]))
-f_mapx4y = tf.matmul(C_4y, tf.transpose(C_4fy, [0,2,1]))
-
-f_mapxy = tf.nn.dropout(tf.nn.relu(tf.concat([f_mapx1y,f_mapx2y, f_mapx3y, f_mapx4y],axis = 2)), keep_prob = keep_prob)
-#f_mapxy_ = tf.concat([f_mapx1y,f_mapx2y, f_mapx3y, f_mapx4y],axis = 2)
-#f_mapxy = tf.nn.dropout(tf.nn.relu(tf.divide(f_mapxy_, tf.abs(tf.reduce_max(f_mapxy_, axis = [1,2], keep_dims = True)))),keep_prob = keep_prob)
-
-#################################################################################################################33
-
-
-
-s13 = s12+ tf.shape(r_foury)[0]
-s14 = s13+ tf.shape(r_oneyi)[0]
-s15 = s14 + tf.shape(r_twoyi)[0]
-s16 = s15 + tf.shape(r_threeyi)[0]
-
-
-X__1yi = tf.slice(X_, [s13,0], [tf.shape(r_oneyi)[0], -1])
-X__2yi = tf.slice(X_, [ s14, 0   ],[ tf.shape(r_twoyi)[0]  , -1])
-X__3yi = tf.slice(X_, [s15, 0], [tf.shape(r_threeyi)[0], -1])
-X__4yi = tf.slice(X_, [s16, 0], [tf.shape(r_fouryi)[0], -1])
-
-
-
-X_10yi  = 0.0001 * tf.transpose(X__1yi,[1,0] )
-X_20yi  = 0.0001 * tf.transpose(X__2yi,[1,0] )
-X_30yi  = 0.0001 * tf.transpose(X__3yi,[1,0] )
-X_40yi  = 0.0001 * tf.transpose(X__4yi,[1,0] )
-
-
-X_cal_1yi, p_1 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__1yi),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__1yi),3.0*tf.eye(100)-tf.matmul(x,X__1yi))),x),i+1)
-    ,(X_10yi, 0))
-
-#X_cal_1yi = tf.matmul( tf.eye(30) + 1.0/4.0 * tf.matmul(tf.eye(30)-tf.matmul(X_10yi,X__1yi),tf.matmul(3.0*tf.eye(30)-tf.matmul(X_10yi,X__1yi),3.0*tf.eye(30)-tf.matmul(X_10yi,X__1yi))),X_10yi)
-
-X_cal_2yi, p_2 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__2yi),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__2yi),3.0*tf.eye(100)-tf.matmul(x,X__2yi))),x),i+1)
-    ,(X_20yi, 0))
-
-#X_cal_2yi =  tf.matmul( tf.eye(30) + 1.0/4.0 * tf.matmul(tf.eye(30)-tf.matmul(X_20yi,X__2yi),tf.matmul(3.0*tf.eye(30)-tf.matmul(X_20yi,X__2yi),3.0*tf.eye(30)-tf.matmul(X_20yi,X__2yi)))
-
-
-X_cal_3yi, p_3 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__3yi),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__3yi),3.0*tf.eye(100)-tf.matmul(x,X__3yi))),x),i+1)
-    ,(X_30yi, 0))
-
-X_cal_4yi, p_3 = tf.while_loop(lambda x, i: tf.logical_and(i < 2 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
-    lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,X__4yi),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,X__4yi),3.0*tf.eye(100)-tf.matmul(x,X__4yi))),x),i+1)
-    ,(X_40yi,0))
-
-#X_cal_3yi = tf.matmul( tf.eye(30) + 1.0/4.0 * tf.matmul(tf.eye(30)-tf.matmul(X_30yi,X__3yi),tf.matmul(3.0*tf.eye(30)-tf.matmul(X_30yi,X__3yi),3.0*tf.eye(30)-tf.matmul(X_30yi,X__3yi)))
-
-C_1yi = tf.tile(tf.expand_dims(tf.matmul(X_cal_1yi,r_oneyi), axis =0), [64,1,1])
-
-C_2yi = tf.tile(tf.expand_dims(tf.matmul(X_cal_2yi, r_twoyi), axis =0), [64,1,1])
-C_3yi = tf.tile(tf.expand_dims(tf.matmul(X_cal_3yi,r_threeyi), axis =0), [64,1,1])
-C_4yi = tf.tile(tf.expand_dims(tf.matmul(X_cal_4yi,r_fouryi), axis =0), [64,1,1])
-
-##############################################################################
-
-
-x_filter1yi =  tf.get_variable("a_xfilter1yi", [64,150,1])
-x_filter2yi =  tf.get_variable("a_xfilter2yi", [64,150,1])
-x_filter3yi =  tf.get_variable("a_xfilter3yi", [64, 150,1])
-x_filter4yi =  tf.get_variable("a_xfilter4yi", [64, 150,1])
-
-C_1fyi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_1yi,[0,0],[100,150]),axis =0), [64,1,1]), x_filter1yi)
-C_2fyi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_2yi,[0,0],[100,150]),axis =0), [64,1,1]), x_filter2yi)
-C_3fyi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_3yi,[0,0],[100,150]),axis =0), [64,1,1]), x_filter3yi)
-C_4fyi = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_cal_4yi,[0,0],[100,150]),axis =0), [64,1,1]), x_filter4yi)
-
-f_mapx1yi = tf.matmul(C_1yi, tf.transpose(C_1fyi, [0,2,1]))
-f_mapx2yi = tf.matmul(C_2yi, tf.transpose(C_2fyi, [0,2,1]))
-f_mapx3yi = tf.matmul(C_3yi, tf.transpose(C_3fyi, [0,2,1]))
-f_mapx4yi = tf.matmul(C_4yi, tf.transpose(C_4fyi, [0,2,1]))
-
-f_mapxyi = tf.nn.dropout(tf.nn.relu(tf.concat([f_mapx1yi,f_mapx2yi,f_mapx3yi, f_mapx4yi],axis = 2)),keep_prob = keep_prob)
-#f_mapxyi_ = tf.concat([f_mapx1yi,f_mapx2yi,f_mapx3yi, f_mapx4yi],axis = 2)
-#f_mapxyi = tf.nn.dropout(tf.nn.relu(tf.divide(f_mapxyi_, tf.abs(tf.reduce_max(f_mapxyi_, axis = [1,2], keep_dims = True)))),keep_prob = keep_prob)
-
-print("##################!!!!!!!!!!!!!!!!!!!!!")
-print(f_mapxyi)
-
-
-
-
-
-
-
-
-
-
-
+def calc_inverse(in_mat, scope):
+        with tf.variable_scope(scope):
+                init_guess  = 0.0001 * tf.transpose(in_mat,[1,0] )
+                X_cal_1, p_1 = tf.while_loop(lambda x, i: tf.logical_and(i < 4 ,tf.less(tf.reduce_mean(x),tf.constant([10.0]))[0]),
+                        lambda x, i:( tf.matmul( tf.eye(100) + 1.0/4.0 * tf.matmul(tf.eye(100)-tf.matmul(x,in_mat),tf.matmul(3.0*tf.eye(100)-tf.matmul(x,in_mat),3.0*tf.eye(100)-tf.matmul(x,in_mat))),x),i+1), (init_guess, 0))
+                return X_cal_1
 
 
 """
+mask_0_2_ = tf.greater(r_one, 0)
+res_0_2_ = tf.boolean_mask(r_one, mask_0_2_)
+theta_0_2_ = tf.boolean_mask(theta_one, mask_0_2_)
+phi_0_2_ = tf.boolean_mask(phi_one, mask_0_2_)
+mask_0_2 = tf.less(res_0_2_,0.2)
+res_0_2 = tf.reshape(tf.boolean_mask(res_0_2_, mask_0_2),[-1,1])
+theta_0_2 = tf.reshape(tf.boolean_mask(theta_0_2_, mask_0_2),[-1,1])
+phi_0_2 = tf.reshape(tf.boolean_mask(phi_0_2_, mask_0_2),[-1,1])
+
+
+
+mask_2_4_ = tf.greater(r_one, 0.2)
+res_2_4_ = tf.boolean_mask(r_one, mask_2_4_)
+theta_2_4_ = tf.boolean_mask(theta_one, mask_2_4_)
+phi_2_4_ = tf.boolean_mask(phi_one, mask_2_4_)
+mask_2_4 = tf.less(res_2_4_,0.4)
+res_2_4 = tf.reshape(tf.boolean_mask(res_2_4_, mask_2_4),[-1,1])
+theta_2_4 = tf.reshape(tf.boolean_mask(theta_2_4_, mask_2_4),[-1,1])
+phi_2_4 = tf.reshape(tf.boolean_mask(phi_2_4_, mask_2_4),[-1,1])
+
+mask_4_6_ = tf.greater(r_one, 0.4)
+res_4_6_ = tf.boolean_mask(r_one, mask_4_6_)
+theta_4_6_ = tf.boolean_mask(theta_one, mask_4_6_)
+phi_4_6_ = tf.boolean_mask(phi_one, mask_4_6_)
+mask_4_6 = tf.less(res_4_6_,0.6)
+res_4_6 = tf.reshape(tf.boolean_mask(res_4_6_, mask_4_6),[-1,1])
+theta_4_6 = tf.reshape(tf.boolean_mask(theta_4_6_, mask_4_6),[-1,1])
+phi_4_6 = tf.reshape(tf.boolean_mask(phi_4_6_, mask_4_6),[-1,1])
+
+
+mask_6_8_ = tf.greater(r_one, 0.6)
+res_6_8_ = tf.boolean_mask(r_one, mask_6_8_)
+theta_6_8_ = tf.boolean_mask(theta_one, mask_6_8_)
+phi_6_8_ = tf.boolean_mask(phi_one, mask_6_8_)
+mask_6_8 = tf.less(res_4_6_,0.8)
+res_6_8 = tf.reshape(tf.boolean_mask(res_6_8_, mask_6_8),[-1,1])
+theta_6_8 = tf.reshape(tf.boolean_mask(theta_6_8_, mask_6_8),[-1,1])
+phi_6_8 = tf.reshape(tf.boolean_mask(phi_6_8_, mask_6_8),[-1,1])
+
+
+mask_8_10_= tf.greater(r_one, 0.8)
+res_8_10_ = tf.boolean_mask(r_one, mask_8_10_)
+theta_8_10_ = tf.boolean_mask(theta_one, mask_8_10_)
+phi_8_10_ = tf.boolean_mask(phi_one, mask_8_10_)
+mask_8_10 = tf.less(res_8_10_,1.0)
+res_8_10 = tf.reshape(tf.boolean_mask(res_8_10_, mask_8_10),[-1,1])
+theta_8_10 = tf.reshape(tf.boolean_mask(theta_8_10_, mask_8_10),[-1,1])
+phi_8_10 = tf.reshape(tf.boolean_mask(phi_8_10_, mask_8_10),[-1,1])
+"""
+def get_slice(r_one, theta_one, phi_one, low, high, scope):
+	with tf.variable_scope(scope):
+		mask_0_2_ = tf.greater(r_one, low)
+		res_0_2_ = tf.boolean_mask(r_one, mask_0_2_)
+		theta_0_2_ = tf.boolean_mask(theta_one, mask_0_2_)
+		phi_0_2_ = tf.boolean_mask(phi_one, mask_0_2_)
+		mask_0_2 = tf.less(res_0_2_,high)
+		res_0_2 = tf.reshape(tf.boolean_mask(res_0_2_, mask_0_2),[-1,1])
+		theta_0_2 = tf.reshape(tf.boolean_mask(theta_0_2_, mask_0_2),[-1,1])
+		phi_0_2 = tf.reshape(tf.boolean_mask(phi_0_2_, mask_0_2),[-1,1])
+
+		return res_0_2, theta_0_2, phi_0_2
+
+res_1, theta_1, phi_1 = get_slice(r_one, theta_one, phi_one, 0.0, 1.0, "s1")
+res_11, theta_11, phi_11 = get_slice(r_one, theta_one, phi_one, 0.025, 1.0, "s11")
+res_2, theta_2, phi_2 = get_slice(r_one, theta_one, phi_one, 0.05, 1.0, "s2")
+res_12, theta_12, phi_12 = get_slice(r_one, theta_one, phi_one, 0.075, 1.0, "s12")
+
+res_3, theta_3, phi_3 = get_slice(r_one, theta_one, phi_one, 0.1, 1.0, "s3")
+res_13, theta_13, phi_13 = get_slice(r_one, theta_one, phi_one, 0.125, 1.0, "s13")
+res_4, theta_4, phi_4 = get_slice(r_one, theta_one, phi_one, 0.15, 1.0, "s4")
+res_14, theta_14, phi_14 = get_slice(r_one, theta_one, phi_one, 0.175, 1.0, "s14")
+
+res_5, theta_5, phi_5 = get_slice(r_one, theta_one, phi_one, 0.2, 1.0, "s5")
+res_15, theta_15, phi_15 = get_slice(r_one, theta_one, phi_one, 0.225, 1.0, "s15")
+res_6, theta_6, phi_6 = get_slice(r_one, theta_one, phi_one, 0.25, 1.0, "s6")
+res_16, theta_16, phi_16 = get_slice(r_one, theta_one, phi_one, 0.275, 1.0, "s16")
+
+res_7, theta_7, phi_7 = get_slice(r_one, theta_one, phi_one, 0.3, 1.0, "s7")
+res_17, theta_17, phi_17 = get_slice(r_one, theta_one, phi_one, 0.325, 1.0, "s17")
+res_8, theta_8, phi_8 = get_slice(r_one, theta_one, phi_one, 0.35, 1.0, "s8")
+res_18, theta_18, phi_18 = get_slice(r_one, theta_one, phi_one, 0.375, 1.0, "s18")
+
+res_9, theta_9, phi_9 = get_slice(r_one, theta_one, phi_one, 0.4, 1.0, "s9")
+res_19, theta_19, phi_19 = get_slice(r_one, theta_one, phi_one, 0.425, 1.0, "s19")
+res_10, theta_10, phi_10 = get_slice(r_one, theta_one, phi_one, 0.45, 1.0, "s10")
+res_20, theta_20, phi_20 = get_slice(r_one, theta_one, phi_one, 0.475, 1.0, "s20")
+
+
+
+X_1 = get_zernike_mat(res_1,theta_1,phi_1,"x1")
+X_2 = get_zernike_mat(res_2,theta_2,phi_2,"x2")
+X_3 = get_zernike_mat(res_3,theta_3,phi_3,"x3")
+X_4 = get_zernike_mat(res_4,theta_4,phi_4,"x4")
+X_5 = get_zernike_mat(res_5,theta_5,phi_5,"x5")
+X_6 = get_zernike_mat(res_6,theta_6,phi_6,"x6")
+X_7 = get_zernike_mat(res_7,theta_7,phi_7,"x7")
+X_8 = get_zernike_mat(res_8,theta_8,phi_8,"x8")
+X_9 = get_zernike_mat(res_9,theta_9,phi_9,"x9")
+X_10 = get_zernike_mat(res_10,theta_10,phi_10,"x10")
+
+X_11 = get_zernike_mat(res_11,theta_11,phi_11,"x11")
+X_12 = get_zernike_mat(res_12,theta_12,phi_12,"x12")
+X_13 = get_zernike_mat(res_13,theta_13,phi_13,"x13")
+X_14 = get_zernike_mat(res_14,theta_14,phi_14,"x14")
+X_15 = get_zernike_mat(res_15,theta_15,phi_15,"x15")
+X_16 = get_zernike_mat(res_16,theta_16,phi_16,"x16")
+X_17 = get_zernike_mat(res_17,theta_17,phi_17,"x17")
+X_18 = get_zernike_mat(res_18,theta_18,phi_18,"x18")
+X_19 = get_zernike_mat(res_19,theta_19,phi_19,"x19")
+X_20 = get_zernike_mat(res_20,theta_20,phi_20,"x20")
+
+
+
+X_inv_1 = calc_inverse(X_1, "inv_1")
+X_inv_2 = calc_inverse(X_2, "inv_2")
+X_inv_3 = calc_inverse(X_3, "inv_3")
+X_inv_4 = calc_inverse(X_4, "inv_4")
+X_inv_5 = calc_inverse(X_5, "inv_5")
+X_inv_6 = calc_inverse(X_6, "inv_6")
+X_inv_7 = calc_inverse(X_7, "inv_7")
+X_inv_8 = calc_inverse(X_8, "inv_8")
+X_inv_9 = calc_inverse(X_9, "inv_9")
+X_inv_10 = calc_inverse(X_10, "inv_10")
+
+X_inv_11 = calc_inverse(X_11, "inv_11")
+X_inv_12 = calc_inverse(X_12, "inv_12")
+X_inv_13 = calc_inverse(X_13, "inv_13")
+X_inv_14 = calc_inverse(X_14, "inv_14")
+X_inv_15 = calc_inverse(X_15, "inv_15")
+X_inv_16 = calc_inverse(X_16, "inv_16")
+X_inv_17 = calc_inverse(X_17, "inv_17")
+X_inv_18 = calc_inverse(X_18, "inv_18")
+X_inv_19 = calc_inverse(X_19, "inv_19")
+X_inv_20 = calc_inverse(X_20, "inv_20")
+
+
+
+
+
+C_1 = tf.tile(tf.expand_dims(tf.matmul(X_inv_1,res_1),axis=0), [64,1,1])
+C_2 = tf.tile(tf.expand_dims(tf.matmul(X_inv_2,res_2),axis=0), [64,1,1])
+C_3 = tf.tile(tf.expand_dims(tf.matmul(X_inv_3,res_3),axis=0), [64,1,1])
+C_4 = tf.tile(tf.expand_dims(tf.matmul(X_inv_4,res_4),axis=0), [64,1,1])
+C_5 = tf.tile(tf.expand_dims(tf.matmul(X_inv_5,res_5),axis=0), [64,1,1])
+C_6 = tf.tile(tf.expand_dims(tf.matmul(X_inv_6,res_6),axis=0), [64,1,1])
+C_7 = tf.tile(tf.expand_dims(tf.matmul(X_inv_7,res_7),axis=0), [64,1,1])
+C_8 = tf.tile(tf.expand_dims(tf.matmul(X_inv_8,res_8),axis=0), [64,1,1])
+C_9 = tf.tile(tf.expand_dims(tf.matmul(X_inv_9,res_9),axis=0), [64,1,1])
+C_10 = tf.tile(tf.expand_dims(tf.matmul(X_inv_10,res_10),axis=0), [64,1,1])
+
+C_11 = tf.tile(tf.expand_dims(tf.matmul(X_inv_11,res_11),axis=0), [64,1,1])
+C_12 = tf.tile(tf.expand_dims(tf.matmul(X_inv_12,res_12),axis=0), [64,1,1])
+C_13 = tf.tile(tf.expand_dims(tf.matmul(X_inv_13,res_13),axis=0), [64,1,1])
+C_14 = tf.tile(tf.expand_dims(tf.matmul(X_inv_14,res_14),axis=0), [64,1,1])
+C_15 = tf.tile(tf.expand_dims(tf.matmul(X_inv_15,res_15),axis=0), [64,1,1])
+C_16 = tf.tile(tf.expand_dims(tf.matmul(X_inv_16,res_16),axis=0), [64,1,1])
+C_17 = tf.tile(tf.expand_dims(tf.matmul(X_inv_17,res_17),axis=0), [64,1,1])
+C_18 = tf.tile(tf.expand_dims(tf.matmul(X_inv_18,res_18),axis=0), [64,1,1])
+C_19 = tf.tile(tf.expand_dims(tf.matmul(X_inv_19,res_19),axis=0), [64,1,1])
+C_20 = tf.tile(tf.expand_dims(tf.matmul(X_inv_20,res_20),axis=0), [64,1,1])
+
+
+
+
+x_filter1 =  tf.get_variable("a_xfilter1", [64,50,1])
+
+def shift_kernel(val_r, val_phi, val_theta, shift, surf, scope):
+	with tf.variable_scope(scope):
+		val_ = val_r + shift
+		mask = tf.less(val_, 1.0)
+		r_ = tf.reshape(tf.boolean_mask(val_, mask),[-1,1])
+		phi_ = tf.reshape(tf.boolean_mask(val_phi, mask),[-1,1])
+		theta_ = tf.reshape(tf.boolean_mask(val_theta, mask),[-1,1])
+		r = tf.concat([r_, tf.zeros([tf.shape(val_r)[0]-tf.shape(r_)[0],1])], axis = 0)
+		p = tf.concat([phi_, tf.zeros([tf.shape(val_r)[0]-tf.shape(phi_)[0],1])], axis = 0)
+		t = tf.concat([theta_, tf.zeros([tf.shape(val_r)[0]-tf.shape(theta_)[0],1])], axis=0)
+
+		X_ = get_zernike_mat(r,t,p,"Zp_0_8")
+		X_inv = calc_inverse(X_, "inverseZp_0_8")
+		C_f = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_inv,[0,0],[100,50]), axis =0), [64,1,1]), surf)
+		
+		return C_f
+		
+C_pf1 = shift_kernel(r_one, phi_one, theta_one, 0.0, x_filter1, "cf1")
+C_pf11 = shift_kernel(r_one, phi_one, theta_one, 0.025, x_filter1, "cf11")
+C_pf2 = shift_kernel(r_one, phi_one, theta_one, 0.05, x_filter1, "cf2")
+C_pf12 = shift_kernel(r_one, phi_one, theta_one, 0.0575, x_filter1, "cf12")
+C_pf3 = shift_kernel(r_one, phi_one, theta_one, 0.1, x_filter1, "cf3")
+C_pf13 = shift_kernel(r_one, phi_one, theta_one, 0.125, x_filter1, "cf13")
+C_pf4 = shift_kernel(r_one, phi_one, theta_one, 0.15, x_filter1, "cf4")
+C_pf14 = shift_kernel(r_one, phi_one, theta_one, 0.175, x_filter1, "cf14")
+C_pf5 = shift_kernel(r_one, phi_one, theta_one, 0.2, x_filter1, "cf5")
+C_pf15 = shift_kernel(r_one, phi_one, theta_one, 0.225, x_filter1, "cf15")
+C_pf6 = shift_kernel(r_one, phi_one, theta_one, 0.25, x_filter1, "cf6")
+C_pf16 = shift_kernel(r_one, phi_one, theta_one, 0.275, x_filter1, "cf16")
+C_pf7 = shift_kernel(r_one, phi_one, theta_one, 0.3, x_filter1, "cf7")
+C_pf17 = shift_kernel(r_one, phi_one, theta_one, 0.325, x_filter1, "cf17")
+C_pf8 = shift_kernel(r_one, phi_one, theta_one, 0.35, x_filter1, "cf8")
+C_pf18 = shift_kernel(r_one, phi_one, theta_one, 0.375, x_filter1, "cf18")
+C_pf9 = shift_kernel(r_one, phi_one, theta_one, 0.4, x_filter1, "cf9")
+C_pf19 = shift_kernel(r_one, phi_one, theta_one, 0.425, x_filter1, "cf19")
+C_pf10 = shift_kernel(r_one, phi_one, theta_one, 0.45, x_filter1, "cf10")
+C_pf20 = shift_kernel(r_one, phi_one, theta_one, 0.475, x_filter1, "cf20")
+
+
+
+
+
+#C_pf_0_2 = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_inv_0_0f,[0,0],[100,50]), axis =0), [64,1,1]), x_filter1)
+f_mapz1 = tf.matmul(C_1, tf.transpose(C_pf1, [0,2,1]))
+f_mapz2 = tf.matmul(C_2, tf.transpose(C_pf2, [0,2,1]))
+f_mapz3 = tf.matmul(C_3, tf.transpose(C_pf3, [0,2,1]))
+f_mapz4 = tf.matmul(C_4, tf.transpose(C_pf4, [0,2,1]))
+f_mapz5 = tf.matmul(C_5, tf.transpose(C_pf5, [0,2,1]))
+f_mapz6 = tf.matmul(C_6, tf.transpose(C_pf6, [0,2,1]))
+f_mapz7 = tf.matmul(C_7, tf.transpose(C_pf7, [0,2,1]))
+f_mapz8 = tf.matmul(C_8, tf.transpose(C_pf8, [0,2,1]))
+f_mapz9 = tf.matmul(C_9, tf.transpose(C_pf9, [0,2,1]))
+f_mapz10 = tf.matmul(C_10, tf.transpose(C_pf10, [0,2,1]))
+
+
+f_mapz11 = tf.matmul(C_11, tf.transpose(C_pf11, [0,2,1]))
+f_mapz12 = tf.matmul(C_12, tf.transpose(C_pf12, [0,2,1]))
+f_mapz13 = tf.matmul(C_13, tf.transpose(C_pf13, [0,2,1]))
+f_mapz14 = tf.matmul(C_14, tf.transpose(C_pf14, [0,2,1]))
+f_mapz15 = tf.matmul(C_15, tf.transpose(C_pf15, [0,2,1]))
+f_mapz16 = tf.matmul(C_16, tf.transpose(C_pf16, [0,2,1]))
+f_mapz17 = tf.matmul(C_17, tf.transpose(C_pf17, [0,2,1]))
+f_mapz18 = tf.matmul(C_18, tf.transpose(C_pf18, [0,2,1]))
+f_mapz19 = tf.matmul(C_19, tf.transpose(C_pf19, [0,2,1]))
+f_mapz20 = tf.matmul(C_20, tf.transpose(C_pf20, [0,2,1]))
+
+
+map1 = tf.maximum(tf.maximum(f_mapz1,f_mapz2),tf.maximum(f_mapz11,f_mapz12))
+map2 = tf.maximum(tf.maximum(f_mapz3,f_mapz4),tf.maximum(f_mapz13,f_mapz14))
+map3 = tf.maximum(tf.maximum(f_mapz5,f_mapz6),tf.maximum(f_mapz15,f_mapz16))
+map4 = tf.maximum(tf.maximum(f_mapz7,f_mapz8),tf.maximum(f_mapz17,f_mapz18))
+map5 = tf.maximum(tf.maximum(f_mapz9,f_mapz10),tf.maximum(f_mapz19,f_mapz20))
+
+f_map = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([map1,map2,map3,map4,map5],axis = 2), [1,10000*5*64])), keep_prob=keep_prob)
+
+
+"""
+C_pf_2_4 = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_inv_0_2f,[0,0],[100,50]), axis =0), [64,1,1]), x_filter1)
+f_mapz_2_4 = tf.matmul(C_2_4, tf.transpose(C_pf_2_4, [0,2,1]))
+
+C_pf_4_6 = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_inv_0_4f,[0,0],[100,50]), axis =0), [64,1,1]), x_filter1)
+f_mapz_4_6 = tf.matmul(C_4_6, tf.transpose(C_pf_4_6, [0,2,1]))
+
+C_pf_6_8 = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_inv_0_6f,[0,0],[100,50]), axis =0), [64,1,1]), x_filter1)
+f_mapz_6_8 = tf.matmul(C_6_8, tf.transpose(C_pf_6_8, [0,2,1]))
+
+C_pf_8_10 = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_inv_0_8f,[0,0],[100,50]), axis =0), [64,1,1]), x_filter1)
+f_mapz_8_10 = tf.matmul(C_8_10, tf.transpose(C_pf_8_10, [0,2,1]))
 
-U_4 = tf.concat([u_0_4, u_1_4, u_2_4, u_3_4, u_4_4] ,  axis=1)
-V_4 = tf.concat([v_0_4,v_1_4,v_2_4,v_3_4,v_4_4] ,  axis=1)
-
-X_4 = tf.concat([U_4,V_4] ,  axis=1)
-
-X_41 = tf.slice(X_4, [0,0], [tf.shape(r_one)[0], -1])
-X_42 = tf.slice(X_4, [tf.shape(r_one)[0], 0], [tf.shape(r_two)[0], -1])
-X_43 = tf.slice(X_4, [tf.shape(r_two)[0] + tf.shape(r_one)[0], 0], [tf.shape(r_three)[0], -1])
-
-
-
-
-f_411 = safe_norm(tf.matmul(X_41,tf.slice(C_1,[20,0],[10,-1])),axis = None, keep_dims = True)
-f_412 = safe_norm(tf.matmul(X_42,tf.slice(C_2,[20,0],[10,-1])),axis = None, keep_dims = True)
-f_413 = safe_norm(tf.matmul(X_43,tf.slice(C_3,[20,0],[10,-1])),axis = None, keep_dims = True)
-
-
-_, f_421 = tf.nn.moments(tf.matmul(X_41,tf.slice(C_1,[20,0],[10,-1])),axes = [0],  keep_dims = True)
-_, f_422 = tf.nn.moments(tf.matmul(X_42,tf.slice(C_2,[20,0],[10,-1])),axes = [0],  keep_dims = True)
-_, f_423 = tf.nn.moments(tf.matmul(X_43,tf.slice(C_3,[20,0],[10,-1])),axes = [0],  keep_dims = True)
-
-   
-#############################################################################################
-
-U_3 = tf.concat([u_0_3, u_1_3, u_2_3, u_3_3] ,  axis=1)
-V_3 = tf.concat([v_0_3,v_1_3,v_2_3,v_3_3] ,  axis=1)
-
-X_3 = tf.concat([U_3,V_3] ,  axis=1)
-
-X_31 = tf.slice(X_3, [0,0], [tf.shape(r_one)[0], -1])
-X_32 = tf.slice(X_3, [tf.shape(r_one)[0], 0], [tf.shape(r_two)[0], -1])
-X_33 = tf.slice(X_3, [tf.shape(r_two)[0] + tf.shape(r_one)[0], 0], [tf.shape(r_three)[0], -1])
-
-
-f_311 = safe_norm(tf.matmul(X_31,tf.slice(C_1,[12,0],[8,-1])),axis = None, keep_dims = True)
-f_312 = safe_norm(tf.matmul(X_32,tf.slice(C_2,[12,0],[8,-1])),axis = None, keep_dims = True)
-f_313 = safe_norm(tf.matmul(X_33,tf.slice(C_3,[12,0],[8,-1])),axis = None, keep_dims = True)
-
-
-_, f_321 = tf.nn.moments(tf.matmul(X_31,tf.slice(C_1,[12,0],[8,-1])),axes = [0],  keep_dims = True)
-_, f_322 = tf.nn.moments(tf.matmul(X_32,tf.slice(C_2,[12,0],[8,-1])),axes = [0],  keep_dims = True)
-_, f_323 = tf.nn.moments(tf.matmul(X_33,tf.slice(C_3,[12,0],[8,-1])),axes = [0],  keep_dims = True)
-
-
-#################################################################################################################
-U_2 = tf.concat([u_0_2, u_1_2, u_2_2] ,  axis=1)
-V_2 = tf.concat([v_0_2,v_1_2,v_2_2] ,  axis=1)
-
-X_2 = tf.concat([U_2,V_2] ,  axis=1)
-
-X_21 = tf.slice(X_2, [0,0], [tf.shape(r_one)[0], -1])
-X_22 = tf.slice(X_2, [tf.shape(r_one)[0], 0], [tf.shape(r_two)[0], -1])
-X_23 = tf.slice(X_2, [tf.shape(r_two)[0] + tf.shape(r_one)[0], 0], [tf.shape(r_three)[0], -1])
-
-
-
-f_211 = safe_norm(tf.matmul(X_21,tf.slice(C_1,[6,0],[6,-1])),axis = None, keep_dims = True)
-f_212 = safe_norm(tf.matmul(X_22,tf.slice(C_2,[6,0],[6,-1])),axis = None, keep_dims = True)
-f_213 = safe_norm(tf.matmul(X_23,tf.slice(C_3,[6,0],[6,-1])),axis = None, keep_dims = True)
-
-
-_, f_221 = tf.nn.moments(tf.matmul(X_21,tf.slice(C_1,[6,0],[6,-1])),axes = [0],  keep_dims = True)
-_, f_222 = tf.nn.moments(tf.matmul(X_22,tf.slice(C_2,[6,0],[6,-1])),axes = [0],  keep_dims = True)
-_, f_223 = tf.nn.moments(tf.matmul(X_23,tf.slice(C_3,[6,0],[6,-1])),axes = [0],  keep_dims = True)
-
-#########################################################################################################################
-
-U_1 = tf.concat([u_0_1, u_1_1] ,  axis=1)
-V_1 = tf.concat([v_0_1,v_1_1] ,  axis=1)
-
-X_1 = tf.concat([U_1,V_1] ,  axis=1)
-
-X_11 = tf.slice(X_1, [0,0], [tf.shape(r_one)[0], -1])
-X_12 = tf.slice(X_1, [tf.shape(r_one)[0], 0], [tf.shape(r_two)[0], -1])
-X_13 = tf.slice(X_1, [tf.shape(r_two)[0] + tf.shape(r_one)[0], 0], [tf.shape(r_three)[0], -1])
-
-f_111 = safe_norm(tf.matmul(X_11,tf.slice(C_1,[2,0],[4,-1])),axis = None, keep_dims = True)
-f_112 = safe_norm(tf.matmul(X_12,tf.slice(C_2,[2,0],[4,-1])),axis = None, keep_dims = True)
-f_113 = safe_norm(tf.matmul(X_13,tf.slice(C_3,[2,0],[4,-1])),axis = None, keep_dims = True)
-
-
-_, f_121 = tf.nn.moments(tf.matmul(X_11,tf.slice(C_1,[2,0],[4,-1])),axes = [0],  keep_dims = True)
-_, f_122 = tf.nn.moments(tf.matmul(X_12,tf.slice(C_2,[2,0],[4,-1])),axes = [0],  keep_dims = True)
-_, f_123 = tf.nn.moments(tf.matmul(X_13,tf.slice(C_3,[2,0],[4,-1])),axes = [0],  keep_dims = True)
-
-
-##############################################################################################
-
-
-U_0 = tf.concat([u_0_0] ,  axis=1)
-V_0 = tf.concat([v_0_0] ,  axis=1)
-
-X_0 = tf.concat([U_0,V_0] ,  axis=1)
-
-X_01 = tf.slice(X_0, [0,0], [tf.shape(r_one)[0], -1])
-X_02 = tf.slice(X_0, [tf.shape(r_one)[0], 0], [tf.shape(r_two)[0], -1])
-X_03 = tf.slice(X_0, [tf.shape(r_two)[0] + tf.shape(r_one)[0] ,0] , [tf.shape(r_three)[0], -1])
-
-
-
-f_011 = safe_norm(tf.matmul(X_01,tf.slice(C_1,[0,0],[2,-1])),axis = None, keep_dims = True)
-f_012 = safe_norm(tf.matmul(X_02,tf.slice(C_2,[0,0],[2,-1])),axis = None, keep_dims = True)
-f_013 = safe_norm(tf.matmul(X_03,tf.slice(C_3,[0,0],[2,-1])),axis = None, keep_dims = True)
-
-
-_, f_021 = tf.nn.moments(tf.matmul(X_01,tf.slice(C_1,[0,0],[2,-1])),axes = [0],  keep_dims = True)
-_, f_022 = tf.nn.moments(tf.matmul(X_02,tf.slice(C_2,[0,0],[2,-1])),axes = [0],  keep_dims = True)
-_, f_023 = tf.nn.moments(tf.matmul(X_03,tf.slice(C_3,[0,0],[2,-1])),axes = [0],  keep_dims = True)
-
-#####################################################################################################3
-
-def radial_poly(rho, n, m):
-	if n == 1 and m == 1:
-		return tf.sqrt(rho+0.0001)
-	if n == 2 and m == 1:
-		return tf.pow(rho,1.5)
-	if n == 3 and m == 1:
-		return 3.0* tf.pow(rho, 1.5) - 2.0 * tf.sqrt(rho + 0.0001)
-	if n == 3 and m == 3:
-		return
-	
-	
-	
-
-l = tf.greater(theta_one[:,0],0)
-
-theta_1 = tf.boolean_mask(theta_one, l)
-phi_1 = tf.boolean_mask(phi_one, l)
-r_1 = tf.boolean_mask(r_one, l)
-
-
-
-
-r_pow = tf.transpose(tf.pow(r_1, 3), [1,0])
-radial_real = tf.multiply(radial_poly(r_1,3,1), tf.cos(theta_1 * 3.0 + phi_1))
-radial_imag = tf.multiply(radial_poly(r_1,3,1), tf.sin(theta_1 * 3.0 + phi_1))
-
-real_term = tf.square(tf.matmul(r_pow,radial_imag))
-imag_term = tf.square(tf.matmul(r_pow,radial_imag))
-
-moment_31 = -0.277 * tf.sqrt(real_term + imag_term+ 0.0001)
-
-
-
-radial_real2 = tf.multiply(radial_poly(r_1,2,1), tf.cos(theta_1 * 2.0 + phi_1))
-radial_imag2 = tf.multiply(radial_poly(r_1,2,1), tf.sin(theta_1 * 2.0 + phi_1))
-
-real_term2 = tf.square(tf.matmul(r_pow,radial_imag2))
-imag_term2 = tf.square(tf.matmul(r_pow,radial_imag2))
-
-moment_21 = 0.207 * tf.sqrt(real_term2 + imag_term2)
-
-C_1_softmax = tf.nn.softmax(C_1, axis = 0)
-C_2_softmax = tf.nn.softmax(C_2, axis = 0)
-C_3_softmax = tf.nn.softmax(C_3, axis = 0)
-
-f_1_softmax = tf.concat([ f_011, f_021, f_111, f_121,f_211, f_221, f_311, f_321,f_411, f_421 ], axis =0)
-f_2_softmax = tf.concat([  f_012, f_022, f_112, f_122, f_212, f_222, f_312, f_322, f_412, f_422  ], axis = 0)
-f_3_softmax = tf.concat([f_013, f_023, f_113, f_123, f_213, f_223,  f_313, f_323, f_413, f_423 ], axis = 0)
-
-m1_softmax =  tf.concat([ moment_31, moment_21  ], axis = 0)
-m2_softmax =  tf.concat([  moment_31, moment_21  ], axis = 0)
-m3_softmax =  tf.concat([  moment_31, moment_21  ], axis = 0) 
-
-
-
-#B_1 = tf.concat([C_1, f_011, f_021, f_111, f_121,f_211, f_221, f_311, f_321,f_411, f_421,moment_31,moment_21  ], axis =0)
-#B_2 = tf.concat([C_2,  f_012, f_022, f_112, f_122, f_212, f_222, f_312, f_322, f_412, f_422, moment_31, moment_21   ], axis = 0)
-#B_3 = tf.concat([C_3, f_013, f_023, f_113, f_123, f_213, f_223,  f_313, f_323, f_413, f_423, moment_31, moment_21  ], axis = 0)
-
-B_1 =  tf.concat([C_1,C_1i, C_1x, C_1xi, C_1y, C_1yi, f_1_softmax,m1_softmax  ], axis =0)
-B_2 =  tf.concat([C_2, C_2i,  C_2x, C_2xi, C_2y, C_2yi, f_2_softmax,m2_softmax  ], axis =0)
-B_3 =  tf.concat([C_3, C_3i,  C_3x, C_3xi, C_3y, C_3yi, f_3_softmax,m3_softmax  ], axis =0)
 """
 
-z_reshape = tf.expand_dims(tf.reshape(f_mapz, [64,1,10000*4]), axis = 1)
-#z_reshape = tf.reshape(f_mapz, [1,8,8,1936])
-zi_reshape = tf.expand_dims(tf.reshape(f_mapzi, [64,1,10000*4]), axis = 1)
-#zi_reshape = tf.reshape(f_mapzi, [1,8,8,1936])
 
-x_reshape = tf.expand_dims(tf.reshape(f_mapx, [64,1,10000*4]), axis = 1)
-#x_reshape = tf.reshape(f_mapx, [1,8,8,1936])
-xi_reshape = tf.expand_dims(tf.reshape(f_mapxxi, [64,1,10000*4]), axis = 1)
-#xi_reshape = tf.reshape(f_mapxxi, [1,8,8,1936])
+#f_map = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapz1, f_mapz3, f_mapz5, f_mapz7, f_mapz9],axis = 2), [1,10000*5*64])),keep_prob=keep_prob)
 
-y_reshape = tf.expand_dims(tf.reshape(f_mapxy, [64,1,10000*4]), axis = 1)
-#y_reshape = tf.reshape(f_mapxy, [1,8,8,1936])
-yi_reshape = tf.expand_dims(tf.reshape(f_mapxyi, [64,1,10000*4]), axis = 1)
-#yi_reshape = tf.reshape(f_mapxyi, [1,8,8,1936])
+#f_map = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([tf.maximum(f_mapz1,f_mapz2), tf.maximum(f_mapz3,f_mapz4), tf.maximum(f_mapz5,f_mapz6), tf.maximum(f_mapz7,f_mapz8), tf.maximum(f_mapz9,f_mapz10)],axis = 2), [1,10000*5*64])),keep_prob=keep_prob)
 
-#z_compact = tf.reshape(compact_bilinear_pooling_layer(z_reshape, zi_reshape, 1000 , sum_pool=False, sequential=False),[1,8,8,1000])
-#x_compact =  tf.reshape(compact_bilinear_pooling_layer(x_reshape, xi_reshape, 1000 , sum_pool=False, sequential=False),[1,8,8,1000])
-#y_compact =  tf.reshape(compact_bilinear_pooling_layer(y_reshape, yi_reshape, 1000 , sum_pool=False, sequential=False),[1,8,8,1000])
+###################################################################################################################
+resi_1, thetai_1, phii_1 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.0, 1.0, "s1i")
+resi_11, thetai_11, phii_11 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.025, 1.0, "s11i")
+resi_2, thetai_2, phii_2 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.05, 1.0, "s2i")
+resi_12, thetai_12, phii_12 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.075, 1.0, "s13i")
 
+resi_3, thetai_3, phii_3 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.1, 1.0, "s3i")
+resi_13, thetai_13, phii_13 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.125, 1.0, "s13i")
+resi_4, thetai_4, phii_4 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.15, 1.0, "s4i")
+resi_14, thetai_14, phii_14 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.175, 1.0, "s14i")
 
-#compact1 = tf.reshape(compact_bilinear_pooling_layer(z_compact, x_compact, 5000 , sum_pool=False, sequential=False),[1,8,8,5000])
+resi_5, thetai_5, phii_5 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.20, 1.0, "s5i")
+resi_15, thetai_15, phii_15 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.225, 1.0, "s15i")
+resi_6, thetai_6, phii_6 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.25, 1.0, "s6i")
+resi_16, thetai_16, phii_16 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.275, 1.0, "s16i")
 
+resi_7, thetai_7, phii_7 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.30, 1.0, "s7i")
+resi_17, thetai_17, phii_17 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.325, 1.0, "s17i")
+resi_8, thetai_8, phii_8 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.35, 1.0, "s8i")
+resi_18, thetai_18, phii_18 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.375, 1.0, "s18i")
 
-
-#feature_map1 = tf.nn.max_pool(tf.reshape(tf.concat([z_reshape, x_reshape, y_reshape], axis = 1), [1,100,100*3,64]),ksize = (1,8,8,1), strides = (1,6,6,1), padding = "SAME")
-feature_map1 = tf.reshape(tf.concat([z_reshape, x_reshape, y_reshape], axis = 1), [1,8,8,10000*3*4])
-
-feature_map2 = tf.reshape(tf.concat([zi_reshape, xi_reshape, yi_reshape], axis = 1), [1,8,8,10000*3*4])
-
-#feature_map2 = tf.nn.max_pool(tf.reshape(tf.concat([zi_reshape, xi_reshape, yi_reshape], axis = 1), [1,100,100*3,64]),ksize = (1,8,8,1), strides = (1,6,6,1), padding = "SAME")
-
-
-#B = tf.concat([f_mapz,f_mapzi, f_mapx, f_mapxxi,f_mapxy, f_mapxyi ], axis =2)
-B = tf.concat([f_mapz1,f_mapz1i], axis =2)
-top = compact_bilinear_pooling_layer(feature_map1, feature_map2, 1000 , sum_pool=False, sequential=False)
-#top = tf.nn.relu(compact_bilinear_pooling_layer(compact1, y_compact, 10000 , sum_pool=False, sequential=False))
-B_ = compact_bilinear_pooling_layer(feature_map1, feature_map2, 10000 , sum_pool=False, sequential=False)
-
-#B_1 = tf.concat([C_1,moment_31,moment_21 ], axis =0)
-#B_2 = tf.concat([C_2, moment_31, moment_21  ], axis = 0)
-#B_3 = tf.concat([C_3, moment_31, moment_21 ], axis = 0)
+resi_9, thetai_9, phii_9 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.40, 1.0, "s9i")
+resi_19, thetai_19, phii_19 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.425, 1.0, "s19i")
+resi_10, thetai_10, phii_10 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.45, 1.0, "s10i")
+resi_20, thetai_20, phii_20 = get_slice(r_one_i, theta_one_i, phi_one_i, 0.475, 1.0, "s20i")
 
 
+Xi_1 = get_zernike_mat(resi_1,thetai_1,phii_1,"xi1")
+Xi_2 = get_zernike_mat(resi_2,thetai_2,phii_2,"xi2")
+Xi_3 = get_zernike_mat(resi_3,thetai_3,phii_3,"xi3")
+Xi_4 = get_zernike_mat(resi_4,thetai_4,phii_4,"xi4")
+Xi_5 = get_zernike_mat(resi_5,thetai_5,phii_5,"xi5")
+Xi_6 = get_zernike_mat(resi_6,thetai_6,phii_6,"xi6")
+Xi_7 = get_zernike_mat(resi_7,thetai_7,phii_7,"xi7")
+Xi_8 = get_zernike_mat(resi_8,thetai_8,phii_8,"xi8")
+Xi_9 = get_zernike_mat(resi_9,thetai_9,phii_9,"xi9")
+Xi_10 = get_zernike_mat(resi_10,thetai_10,phii_10,"xi10")
+
+Xi_11 = get_zernike_mat(resi_11,thetai_11,phii_11,"xi11")
+Xi_12 = get_zernike_mat(resi_12,thetai_12,phii_12,"xi12")
+Xi_13 = get_zernike_mat(resi_13,thetai_13,phii_13,"xi13")
+Xi_14 = get_zernike_mat(resi_14,thetai_14,phii_14,"xi14")
+Xi_15 = get_zernike_mat(resi_15,thetai_15,phii_15,"xi15")
+Xi_16 = get_zernike_mat(resi_16,thetai_16,phii_16,"xi16")
+Xi_17 = get_zernike_mat(resi_17,thetai_17,phii_17,"xi17")
+Xi_18 = get_zernike_mat(resi_18,thetai_18,phii_18,"xi18")
+Xi_19 = get_zernike_mat(resi_19,thetai_19,phii_19,"xi19")
+Xi_20 = get_zernike_mat(resi_20,thetai_20,phii_20,"xi20")
 
 
 
+Xi_invi_1 = calc_inverse(Xi_1, "invi_1")
+Xi_invi_2 = calc_inverse(Xi_2, "invi_2")
+Xi_invi_3 = calc_inverse(Xi_3, "invi_3")
+Xi_invi_4 = calc_inverse(Xi_4, "invi_4")
+Xi_invi_5 = calc_inverse(Xi_5, "invi_5")
+Xi_invi_6 = calc_inverse(Xi_6, "invi_6")
+Xi_invi_7 = calc_inverse(Xi_7, "invi_7")
+Xi_invi_8 = calc_inverse(Xi_8, "invi_8")
+Xi_invi_9 = calc_inverse(Xi_9, "invi_9")
+Xi_invi_10 = calc_inverse(Xi_10, "invi_10")
+Xi_invi_11 = calc_inverse(Xi_11, "invi_11")
+Xi_invi_12 = calc_inverse(Xi_12, "invi_12")
+Xi_invi_13 = calc_inverse(Xi_13, "invi_13")
+Xi_invi_14 = calc_inverse(Xi_14, "invi_14")
+Xi_invi_15 = calc_inverse(Xi_15, "invi_15")
+Xi_invi_16 = calc_inverse(Xi_16, "invi_16")
+Xi_invi_17 = calc_inverse(Xi_17, "invi_17")
+Xi_invi_18 = calc_inverse(Xi_18, "invi_18")
+Xi_invi_19 = calc_inverse(Xi_19, "invi_19")
+Xi_invi_20 = calc_inverse(Xi_20, "invi_20")
 
-#test10 = tf.norm(tf.matmul(X_1,B_1))
-#test_11 = tf.reduce_max(tf.matmul(X_1,B_1))
 
-#  = tf.concat([B_1, B_2, B_3], axis = 0)
 
+Ci_1 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_1,resi_1),axis=0), [64,1,1])
+Ci_2 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_2,resi_2),axis=0), [64,1,1])
+Ci_3 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_3,resi_3),axis=0), [64,1,1])
+Ci_4 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_4,resi_4),axis=0), [64,1,1])
+Ci_5 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_5,resi_5),axis=0), [64,1,1])
+Ci_6 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_6,resi_6),axis=0), [64,1,1])
+Ci_7 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_7,resi_7),axis=0), [64,1,1])
+Ci_8 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_8,resi_8),axis=0), [64,1,1])
+Ci_9 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_9,resi_9),axis=0), [64,1,1])
+Ci_10 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_10,resi_10),axis=0), [64,1,1])
+Ci_11 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_11,resi_11),axis=0), [64,1,1])
+Ci_12 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_12,resi_12),axis=0), [64,1,1])
+Ci_13 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_13,resi_13),axis=0), [64,1,1])
+Ci_14 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_14,resi_14),axis=0), [64,1,1])
+Ci_15 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_15,resi_15),axis=0), [64,1,1])
+Ci_16 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_16,resi_16),axis=0), [64,1,1])
+Ci_17 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_17,resi_17),axis=0), [64,1,1])
+Ci_18 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_18,resi_18),axis=0), [64,1,1])
+Ci_19 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_19,resi_19),axis=0), [64,1,1])
+Ci_20 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_20,resi_20),axis=0), [64,1,1])
+
+
+x_filter1i =  tf.get_variable("a_xfilter1i", [64,50,1])
+
+Ci_pfi1 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.0, x_filter1i, "cfi1")
+Ci_pfi11 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.025, x_filter1i, "cfi11")
+Ci_pfi2 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.05, x_filter1i, "cfi2")
+Ci_pfi12 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.075, x_filter1i, "cfi12")
+Ci_pfi3 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.1, x_filter1i, "cfi3")
+Ci_pfi13 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.125, x_filter1i, "cfi13")
+Ci_pfi4 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.15, x_filter1i, "cfi4")
+Ci_pfi14 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.175, x_filter1i, "cfi14")
+Ci_pfi5 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.2, x_filter1i, "cfi5")
+Ci_pfi15 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.225, x_filter1i, "cfi15")
+Ci_pfi6 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.25, x_filter1i, "cfi6")
+Ci_pfi16 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.275, x_filter1i, "cfi16")
+Ci_pfi7 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.3, x_filter1i, "cfi7")
+Ci_pfi17 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.325, x_filter1i, "cfi17")
+Ci_pfi8 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.35, x_filter1i, "cfi8")
+Ci_pfi18 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.375, x_filter1i, "cfi18")
+Ci_pfi9 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.4, x_filter1i, "cfi9")
+Ci_pfi19 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.425, x_filter1i, "cfi19")
+Ci_pfi10 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.45, x_filter1i, "cfi10")
+Ci_pfi20 = shift_kernel(r_one_i, phi_one_i, theta_one_i, 0.475, x_filter1i, "cfi20")
+
+
+#Ci_pfi_0_2 = tf.matmul(tf.tile(tf.expand_dims(tf.slice(X_inv_0_0f,[0,0],[100,50]), axis =0), [64,1,1]), x_filter1i)
+f_mapzi1 = tf.matmul(Ci_1, tf.transpose(Ci_pfi1, [0,2,1]))
+f_mapzi2 = tf.matmul(Ci_2, tf.transpose(Ci_pfi2, [0,2,1]))
+f_mapzi3 = tf.matmul(Ci_3, tf.transpose(Ci_pfi3, [0,2,1]))
+f_mapzi4 = tf.matmul(Ci_4, tf.transpose(Ci_pfi4, [0,2,1]))
+f_mapzi5 = tf.matmul(Ci_5, tf.transpose(Ci_pfi5, [0,2,1]))
+f_mapzi6 = tf.matmul(Ci_6, tf.transpose(Ci_pfi6, [0,2,1]))
+f_mapzi7 = tf.matmul(Ci_7, tf.transpose(Ci_pfi7, [0,2,1]))
+f_mapzi8 = tf.matmul(Ci_8, tf.transpose(Ci_pfi8, [0,2,1]))
+f_mapzi9 = tf.matmul(Ci_9, tf.transpose(Ci_pfi9, [0,2,1]))
+f_mapzi10 = tf.matmul(Ci_10, tf.transpose(Ci_pfi10, [0,2,1]))
+
+f_mapzi11 = tf.matmul(Ci_11, tf.transpose(Ci_pfi11, [0,2,1]))
+f_mapzi12 = tf.matmul(Ci_12, tf.transpose(Ci_pfi12, [0,2,1]))
+f_mapzi13 = tf.matmul(Ci_13, tf.transpose(Ci_pfi13, [0,2,1]))
+f_mapzi14 = tf.matmul(Ci_14, tf.transpose(Ci_pfi14, [0,2,1]))
+f_mapzi15 = tf.matmul(Ci_15, tf.transpose(Ci_pfi15, [0,2,1]))
+f_mapzi16 = tf.matmul(Ci_16, tf.transpose(Ci_pfi16, [0,2,1]))
+f_mapzi17 = tf.matmul(Ci_17, tf.transpose(Ci_pfi17, [0,2,1]))
+f_mapzi18 = tf.matmul(Ci_18, tf.transpose(Ci_pfi18, [0,2,1]))
+f_mapzi19 = tf.matmul(Ci_19, tf.transpose(Ci_pfi19, [0,2,1]))
+f_mapzi20 = tf.matmul(Ci_20, tf.transpose(Ci_pfi20, [0,2,1]))
+
+
+map1i = tf.maximum(tf.maximum(f_mapzi1,f_mapzi2),tf.maximum(f_mapzi11,f_mapzi12))
+map2i = tf.maximum(tf.maximum(f_mapzi3,f_mapzi4),tf.maximum(f_mapzi13,f_mapzi14))
+map3i = tf.maximum(tf.maximum(f_mapzi5,f_mapzi6),tf.maximum(f_mapzi15,f_mapzi16))
+map4i = tf.maximum(tf.maximum(f_mapzi7,f_mapzi8),tf.maximum(f_mapzi17,f_mapzi18))
+map5i = tf.maximum(tf.maximum(f_mapzi9,f_mapzi10),tf.maximum(f_mapzi19,f_mapzi20))
+
+f_map_i = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([map1i,map2i,map3i,map4i,map5i],axis = 2), [1,10000*5*64])), keep_prob=keep_prob)
+
+#f_map_i = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapzi1, f_mapzi3 , f_mapzi5 , f_mapzi7 , f_mapzi9 ],axis = 2), [1,10000*5*64])), keep_prob=keep_prob)
+
+#f_map_i = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([tf.maximum(f_mapzi1,f_mapzi2), tf.maximum(f_mapzi3 ,f_mapzi4), tf.maximum(f_mapzi5 ,f_mapzi6), tf.maximum(f_mapzi7 ,f_mapzi8), tf.maximum(f_mapzi9,f_mapzi10) ],axis = 2), [1,10000*5*64])), keep_prob=keep_prob)
+
+B = tf.concat([f_map,f_map_i], axis =1)
 def dense_batch_relu(x, phase, scope,units):
     with tf.variable_scope(scope):
         h1 = tf.contrib.layers.fully_connected(x, units, 
@@ -1598,352 +1385,32 @@ phase = tf.placeholder(tf.bool, name='phase')
 #estimate_1 = tf.matmul(tf.transpose(u, perm=[0, 2, 1]),r_temp)
 init_sigma = 0.01
 
-# A_init = tf.random_normal(
-# 		  shape=(3, 10,1),
-# 		  stddev=init_sigma, dtype=tf.float32, name="cn_W_init")
-# A = tf.Variable(A_init, name="cn_W")
-
-top_ =1.0 *  tf.div(
-   tf.subtract(
-      top,
-      tf.reduce_min(top, keepdims = True)
-   ),tf.maximum(
-   tf.subtract(
-      tf.reduce_max(top, keepdims = True),
-      tf.reduce_min(top, keepdims = True)
-   ),0.000000001)
-)
-
 #layer_1 = tf.concat([tf.reshape(B, [1,90]),f_11,f_12,f_13], axis = 1)
-layer_1 = tf.nn.dropout(tf.nn.relu(tf.reshape(B, [1, 64*10000*2])),keep_prob=keep_prob)
+layer_1 = tf.nn.dropout(tf.nn.relu(tf.reshape(B, [1, 64*10000*10])),keep_prob=keep_prob)
 
 #layer_1 = tf.concat([f_11,f_12,f_13], axis = 1)
 
+W = tf.get_variable("W",[64*10000*10,10])
+
+W_norm = tf.nn.l2_normalize(
+    W,
+    axis=0,
+    epsilon=1e-12,
+)
 
 #layer_2 = dense_batch_relu(layer_1,phase,"layer1", 200)
-layer_2 = tf.layers.dense(layer_1, 10)
+#layer_2 = tf.layers.dense(layer_1, 10)
 
-layer_2_output = layer_2
+#layer_2_output = layer_2
+layer_2_output = tf.matmul(layer_1,W_norm)
 
-layer_3 = tf.layers.dense(layer_2_output, 10)
-
-layer_3_output = layer_3
-
-layer_4 = tf.layers.dense(layer_3_output, 50)
-
-layer_4_output =  layer_4
-
-layer_5 = tf.layers.dense(layer_4_output, 50)
-
-layer_5_output =  layer_5
-
-layer_6 = tf.layers.dense(layer_5_output, 50)
-
-layer_6_output =  layer_6
-
-layer_7 = tf.layers.dense(layer_6_output, 50)
-
-layer_7_output =  layer_7
-
-layer_8 = tf.layers.dense(layer_7_output, 20)
-
-layer_8_output =  layer_8
-
-layer_9 = tf.layers.dense(layer_8_output, 10)
-
-layer_9_output =  tf.nn.relu(layer_9)
-
-  
-
-caps1_raw_temp = tf.reshape(top, [-1,1000,64],
-                       name="caps1_raw")
-
-#caps1_raw =  tf.nn.l2_normalize(caps1_raw_temp,axis = 2)
-
-caps1_raw =1.0 *  tf.div(
-   tf.subtract(
-      caps1_raw_temp,
-      tf.reduce_min(caps1_raw_temp,axis = 2, keepdims = True)
-   ),tf.maximum(
-   tf.subtract(
-      tf.reduce_max(caps1_raw_temp,axis = 2, keepdims = True),
-      tf.reduce_min(caps1_raw_temp,axis = 2, keepdims = True)
-   ),0.0000001)
-)
-
-#caps1_raw_temp_ = tf.reshape(caps1_raw, [-1, 192,3],
- #                      name="caps1_raw_")
-
-
-def squash(s, axis=-1, epsilon=1e-7, name=None):
-    with tf.name_scope(name, default_name="squash"):
-        squared_norm = tf.reduce_sum(tf.square(s), axis=axis,
-                                     keepdims=True)
-        safe_norm = tf.sqrt(squared_norm + epsilon)
-        squash_factor = squared_norm / (1. + squared_norm)
-        unit_vector = s / safe_norm
-        return squash_factor * unit_vector
-      
-#caps1_output = squash(caps1_raw, name="caps1_output")
-caps1_output = caps1_raw_temp
-
-caps2_n_caps = 10
-caps2_n_dims = 2
-
-
-W_init = tf.random_normal(
-    shape=(1,1000, 10, caps2_n_dims, 64),
-    stddev=init_sigma, dtype=tf.float32, name="a_W_init")
-W = tf.Variable(W_init, name="a_W")
-
-
-
-batch_size = 1
-W_tiled = tf.tile(W, [batch_size, 1, 1, 1, 1], name="a_W_tiled")
-
-
-caps1_output_expanded = tf.expand_dims(caps1_output, -1,
-                                       name="caps1_output_expanded")
-caps1_output_tile = tf.expand_dims(caps1_output_expanded, 2,
-                                   name="caps1_output_tile")
-caps1_output_tiled = tf.tile(caps1_output_tile, [1, 1, caps2_n_caps, 1, 1],
-                             name="caps1_output_tiled")
-
-
-caps2_predicted = tf.matmul(W_tiled, caps1_output_tiled,
-                            name="caps2_predicted")
- 
-#########################################################
-
-raw_weights = tf.zeros([batch_size,1000, caps2_n_caps, 1, 1],
-                       dtype=np.float32, name="raw_weights")
-
-# caps1_output_expanded = tf.expand_dims(caps1_output, -1,
-#                                        name="caps1_output_expanded")
-
-routing_weights = tf.nn.softmax(raw_weights, dim=2, name="routing_weights")
-
-weighted_predictions = tf.nn.dropout(tf.multiply(routing_weights, caps2_predicted,
-                                   name="weighted_predictions"), keep_prob = keep_prob)
-weighted_sum = tf.reduce_sum(weighted_predictions, axis=1, keep_dims=True,
-                             name="weighted_sum")
-
-
-caps2_output_round_1 = squash(weighted_sum, axis=-2,
-                             name="caps2_output_round_1")
-
-#caps2_output_round_1 = weighted_sum
-
-
-caps2_output_round_1_tiled = tf.tile(
-    caps2_output_round_1, [1, 1000, 1, 1, 1],
-    name="caps2_output_round_1_tiled")
-
-
-agreement = tf.matmul(caps2_predicted, caps2_output_round_1_tiled,
-                      transpose_a=True, name="agreement")
-
-raw_weights_round_2 = tf.add(raw_weights, agreement,
-                             name="raw_weights_round_2")
-
-routing_weights_round_2 = tf.nn.softmax(raw_weights_round_2,
-                                        dim=2,
-                                        name="routing_weights_round_2")
-weighted_predictions_round_2 = tf.nn.dropout(tf.multiply(routing_weights_round_2,
-                                           caps2_predicted,
-                                           name="weighted_predictions_round_2"), keep_prob = keep_prob)
-weighted_sum_round_2 = tf.reduce_sum(weighted_predictions_round_2,
-                                     axis=1, keep_dims=True,
-                                     name="weighted_sum_round_2")
-caps2_output_round_2 = squash(weighted_sum_round_2,
-                              axis=-2,
-                              name="caps2_output_round_2")
-
-
-#caps2_output = caps2_output_round_2
-#caps2_output_round_2 =weighted_sum_round_2
-
-caps2_output_round_2_tiled = tf.tile(
-    caps2_output_round_2, [1, 1000, 1, 1, 1],
-    name="caps2_output_round_2_tiled")
-
-
-agreement2 = tf.matmul(caps2_predicted, caps2_output_round_2_tiled,
-                      transpose_a=True, name="agreement2")
-
-raw_weights_round_3 = tf.add(raw_weights_round_2, agreement2,
-                             name="raw_weights_round_3")
-
-routing_weights_round_3 = tf.nn.softmax(raw_weights_round_3,
-                                        dim=2,
-                                        name="routing_weights_round_2")
-weighted_predictions_round_3 = tf.nn.dropout(tf.multiply(routing_weights_round_3,
-                                           caps2_predicted,
-                                           name="weighted_predictions_round_2"), keep_prob = keep_prob)
-weighted_sum_round_3 = tf.reduce_sum(weighted_predictions_round_3,
-                                     axis=1, keep_dims=True,
-                                     name="weighted_sum_round_2")
-caps2_output_round_3 = squash(weighted_sum_round_3,
-                              axis=-2,
-                              name="caps2_output_round_2")
-
-
-caps2_output_ =weighted_sum_round_3
-
-
-
-print("weighted")
-print(weighted_predictions_round_3)
-
-
-#u_initial = safe_norm(weighted_predictions_round_3, axis=3,keep_dims = True, name="u_initial")
-
-#u_initial = tf.nn.softmax(weighted_predictions_round_3, axis = 2)
-
-#u_initial_ = tf.transpose(u_initial, [0,1,3,2,4])
-
-#u_conv_input = tf.reshape(u_initial,[1,384,10])
-
-#label_function = tf.get_variable("a_label", [1, 10, 10], initializer = tf.random_normal_initializer(seed = 0.1))
-
-#u_label_compat = tf.nn.conv1d(u_conv_input, label_function, stride = 1, padding = "VALID")
-
-
-
-#u_initial_reshape =  tf.reshape(u_label_compat, [1,192,2,10,1])
-
-#u_init_transposed =  tf.transpose(u_initial_reshape, [0,1,3,2,4])
-
-#u_added = tf.subtract(weighted_predictions_round_3,u_init_transposed)
-
-#Q_round_1 = tf.nn.softmax(u_added, axis = 2)
-
-#########################################################################
-#u_initial2 = Q_round_1
-
-#u_initial_2 = tf.transpose(u_initial2, [0,1,3,2,4])
-
-#u_conv_input2 = tf.reshape(u_initial2,[1,384,10])
-
-
-#u_label_compat2 = tf.nn.conv1d(u_conv_input2, label_function, stride = 1, padding = "VALID")
-
-
-
-#u_initial_reshape2 =  tf.reshape(u_label_compat2, [1,192,2,10,1])
-
-#u_init_transposed2 =  tf.transpose(u_initial_reshape2, [0,1,3,2,4])
-
-#u_added2 = tf.subtract(weighted_predictions_round_3, u_init_transposed2)
-
-#Q_round_2 = tf.nn.softmax(u_added2, axis = 2)
-
-#############################################################################3
-
-
-#u_initial3 = Q_round_2
-
-#u_initial_3 = tf.transpose(u_initial3, [0,1,3,2,4])
-
-#u_conv_input3 = tf.reshape(u_initial3,[1,384,10])
-
-
-#u_label_compat3 = tf.nn.conv1d(u_conv_input3, label_function, stride = 1, padding = "VALID")
-
-
-
-#u_initial_reshape3 =  tf.reshape(u_label_compat3, [1,192,2,10,1])
-
-#u_init_transposed3 =  tf.transpose(u_initial_reshape3, [0,1,3,2,4])
-
-#u_added3 = tf.subtract(weighted_predictions_round_3, u_init_transposed3)
-
-#Q_round_3 = tf.nn.softmax(u_added3, axis = 2)
-
-
-
-#print(u_label_compat)
-
-
-#weighted_sum_Q = tf.reduce_sum(Q_round_3,
-#                                     axis=1, keep_dims=True,
-#                                     name="weightedQ_sum_round_2")
-#caps2_output = weighted_sum_Q
-
-#caps2_output__ =weighted_sum_round_3
-
-
-caps2_output =1.0 *  tf.div(
-   tf.subtract(
-      weighted_sum_round_3 ,
-      tf.reduce_min(weighted_sum_round_3 , keepdims = True)
-   ),
-   tf.subtract(
-      tf.reduce_max(weighted_sum_round_3 , keepdims = True),
-      tf.reduce_min(weighted_sum_round_3 , keepdims = True)
-   )
-)
-
-"""
-caps2_output =2.0 * tf.div(
-   tf.subtract(
-      weighted_sum_round_3 ,
-      tf.reduce_min(weighted_sum_round_3 , keepdims = True)
-   ),
-   tf.subtract(
-      tf.reduce_max(weighted_sum_round_3 , keepdims = True),
-      tf.reduce_min(weighted_sum_round_3 , keepdims = True)
-   )
-) - 
-"""
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-y_proba = safe_norm(caps2_output, axis=-2, name="y_proba")
-y_proba_argmax = tf.argmax(y_proba, axis=2, name="y_proba")
-#y_pred = tf.squeeze(y_proba_argmax, axis=[1,2], name="y_pred#)
 y_pred = tf.squeeze(tf.argmax(layer_2_output,axis = 1))
 
 #y_pred = tf.argmax(layer_3_output, axis=1)
 
 
 y = tf.placeholder(shape=[None], dtype=tf.int64, name="y")
-
-m_plus = 0.9
-m_minus = 0.1
-lambda_ = 0.5
-
-T = tf.one_hot(y, depth=caps2_n_caps, name="T")
-
-caps2_output_norm = tf.reshape(safe_norm(caps2_output, axis=-2, keep_dims=True,
-                             name="caps2_output_norm"), [-1,10])
-
-#caps2_output_norm = safe_norm(caps2_output, axis=-2, keep_dims=True,
-#                              name="caps2_output_norm")
-
-present_error_raw = tf.square(tf.maximum(0., m_plus - caps2_output_norm),
-                              name="present_error_raw")
-present_error = tf.reshape(present_error_raw, shape=(-1, caps2_n_caps),
-                           name="present_error")
-absent_error_raw = tf.square(tf.maximum(0., caps2_output_norm - m_minus),
-                             name="absent_error_raw")
-absent_error = tf.reshape(absent_error_raw, shape=(-1,  caps2_n_caps),
-                          name="absent_error")
-
-L = tf.add(T * present_error, lambda_ * (1.0 - T) * absent_error,
-           name="L")
-
+T = tf.one_hot(y, depth=10, name="T")
 
 loss = tf.losses.softmax_cross_entropy(T, layer_2_output)
 #loss = tf.reduce_mean(tf.reduce_sum(L, axis=1), name="margin_loss")
@@ -1962,7 +1429,7 @@ batch = tf.Variable(0, trainable = False)
 learning_rate = tf.train.exponential_decay(
   0.01,                # Base learning rate.
   batch,  # Current index into the dataset.
-  1500,          # Decay step.
+  500,          # Decay step.
   0.95,                # Decay rate.
   staircase=True)
 
@@ -1971,20 +1438,6 @@ grads = optimizer.compute_gradients(loss, var_list = rot_vars)
 training_op = optimizer.minimize(loss, name="training_op", global_step=batch) #,  var_list = caps_vars)
 
 assign_op = batch.assign(1)
-
-#accum_tvars = [tf.Variable(tf.zeros_like(t_var.initialized_value()),trainable=False) for t_var in rot_vars] 
-
-#zero_ops = [tv.assign(tf.zeros_like(tv)) for tv in accum_tvars]
-
-#batch_grads_vars = optimizer.compute_gradients(loss, rot_vars)
-#accum_ops = [accum_tvars[i].assign_add(batch_grad_var[0]) for i, batch_grad_var in enumerate(batch_grads_vars)]
-
-#grad_mean = [tv/20.0  for tv in accum_tvars]
-
-#grad_mean = tf.reduce_mean(expanded_grad, axis = 0)
-
-
-#train_step = optimizer.apply_gradients([(grad_mean[i], batch_grad_var[1]) for i, batch_grad_var in enumerate(batch_grads_vars)])
 
 def tf_count(t, val):
     elements_equal_to_value = tf.equal(t, val)
@@ -2085,11 +1538,11 @@ for j in range(10):
 		f = open(filename, 'r')
 	
 	
-		points_raw, y_annot = read_datapoint(f, filename)
+		points_raw_, y_annot = read_datapoint(f, filename)
 	#	print(y_annot)	
 		#sorted_idx = np.lexsort(points_raw.T)
 		#sorted_data =  points_raw[sorted_idx,:
-		points =np.vstack(set(map(tuple, points_raw))) 
+		points_raw =np.vstack(set(map(tuple, points_raw_))) 
 #		test  = sess.run([layer_3_output ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.6})
 #		print(test)
 	#	print(caps2_output)
@@ -2108,14 +1561,14 @@ for j in range(10):
              #   test  = sess.run([centered_calib_points_three_t ], feed_dict = {y:y_annot, raw_points_init:points})
               #  print(test)
 	
-	        if points_raw.size > 1000 and points_raw.size <  1000000:	
+	        if points_raw.size > 300 and points_raw.size <  1000000:	
 		#sess.run([accum_ops], feed_dict = {y:y_annot, raw_points_init:points})
 		#	test  = sess.run([weighted_sum_round_2], feed_dict = {y:y_annot, raw_points_init:points_raw})
 			test  = sess.run([loss ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
           	 	print(test)
 			
-			#test  = sess.run([caps2_output], feed_dict = {y:y_annot, raw_points_init:points_raw})
-                        #print(test)
+#			test1  = sess.run([res_2_4i], feed_dict = {y:y_annot, raw_points_init:points_raw})
+ #                       print(test1)
 #			print(filename)
 			if not np.isnan(test).any() and np.less(test, 1000) and np.greater(test, 0.0): 
 				main_itr = main_itr+1
@@ -2198,7 +1651,7 @@ for j in range(10):
 				print(int(points.size/3.0))
 				print(int(points.size/3.0 * 0.95))
 				points_ = points[idx,:]
-				if (points_raw.size > 1000):
+				if (points.size > 300):
 					rot_mat1 =  [[1, 0, 0], [0, np.cos(random.uniform(-2, 2)), -np.sin(random.uniform(-2, 2))], [0, np.sin(random.uniform(-2, 2)), np.cos(random.uniform(-2, 2))] ]
 					rot_mat2 =  [[np.cos(random.uniform(-2, 2)), 0, np.sin(random.uniform(-2, 2))], [0,1,0], [np.cos(random.uniform(-2, 2)), -np.sin(random.uniform(-2, 2)), 0]]
 					rot_mat3 = [[np.cos(random.uniform(-2, 2)), -np.sin(random.uniform(-2, 2)),0], [np.sin(random.uniform(-2, 2)), np.cos(random.uniform(-2, 2)), 0], [0,0,1]]
@@ -2206,7 +1659,7 @@ for j in range(10):
 				#	print(rot_points)
 					rot_points = np.matmul(points, rot_mat1)
 					loss_val, acc_val = sess.run(
-                	        	[loss, accuracy], feed_dict = {y:y_annot, raw_points_init:points_raw,phase:False,  keep_prob :1.0})
+                	        	[loss, accuracy], feed_dict = {y:y_annot, raw_points_init:points,phase:False,  keep_prob :1.0})
                 			loss_vals.append(loss_val)
                 			acc_vals.append(acc_val)
 					print("validation")
