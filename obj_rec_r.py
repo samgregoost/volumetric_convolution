@@ -5,6 +5,7 @@ import tensorflow as tf
 import glob
 import random
 from compact_bilinear_pooling import compact_bilinear_pooling_layer
+import operator as op
     
 print(tf.__version__)
 
@@ -782,6 +783,50 @@ def radial_poly(rho, m, n):
         if n == 6 and m == 6:
                 return tf.pow(rho, 6)
 
+def ncr(n, r):
+        r = min(r, n-r)
+        numer = reduce(op.mul, xrange(n, n-r, -1), 1)
+        denom = reduce(op.mul, xrange(1, r+1), 1)
+        return numer//denom
+
+def q(v,l,n):
+        return (math.pow(-1,(n-l)/2)/float(math.pow(2,n-l)))*    math.sqrt((2*l + 2*(n-l) + 3)/3.0) * ncr(n-l,(n-l)/2) * math.pow(-1,v) *    (ncr((n-l)/2,v) * ncr(2*((n-l)/2 + l + v) + 1,n-l)) / float(ncr((n-l)/2+ l + v,(n-l)/2))
+
+
+def radial_poly_(rho,l,n):
+        if n == 0 and l == 0:
+                return (q(0,l,n)) * tf.pow(rho,l)
+        if n == 1 and l == 1:
+                return (q(0,l,n)) * tf.pow(rho,l)
+        if n == 2 and l == 0:
+                return (q(0,l,n) + q(1,l,n) * tf.pow(rho,2)) * tf.pow(rho,l)
+        if n == 2 and l == 2:
+                return (q(0,l,n)) * tf.pow(rho,l)
+        if n == 3 and l == 1:
+                return (q(0,l,n) + q(1,l,n) * tf.pow(rho,2)) * tf.pow(rho,l)
+        if n == 3 and l == 3:
+                return (q(0,l,n)) * tf.pow(rho,l)
+        if n == 4 and l == 0:
+                return (q(0,l,n) + q(1,l,n) *tf.pow(rho,2) +  q(2,l,n) * tf.pow(rho,4)) * tf.pow(rho,l)
+        if n == 4 and l == 2:
+                return (q(0,l,n) + q(1,l,n) * tf.pow(rho,2))*tf.pow(rho,l)
+        if n == 4 and l == 4:
+                return (q(0,l,n)) * tf.pow(rho,l)
+        if n==5 and l == 1:
+                return (q(0,l,n) + q(1,l,n) * tf.pow(rho,2) + q(2,l,n) * tf.pow(rho,4)) * tf.pow(rho,l)
+        if n==5 and l == 3:
+                return (q(0,l,n) + q(1,l,n) * tf.pow(rho,2))* tf.pow(rho,l)
+        if n==5 and l == 5:
+                return (q(0,l,n)) * tf.pow(rho,l)
+        if n==6 and l == 0:
+                return (q(0,l,n) + q(1,l,n) * tf.pow(rho,2) + q(2,l,n) * tf.pow(rho,4) + q(3,l,n) * tf.pow(rho,6)) * tf.pow(rho,l)
+        if n==6 and l == 2:
+                return (q(0,l,n) + q(1,l,n) * tf.pow(rho,2) + q(2,l,n) * tf.pow(rho,4)) * tf.pow(rho,l)
+        if n==6 and l == 4:
+                return (q(0,l,n) + q(1,l,n) * tf.pow(rho,2)) * tf.pow(rho,l)
+        if n==6 and l == 6:
+                return q(0,l,n) * tf.pow(rho,l)
+
 ###########################################################################
 def get_harmonics(theta, scope):
         with tf.variable_scope(scope):
@@ -1018,33 +1063,34 @@ def get_slice(r_one, theta_one, phi_one, low, high, scope):
 		res_0_2 = tf.reshape(tf.boolean_mask(res_0_2_, mask_0_2),[-1,1])
 		theta_0_2 = tf.reshape(tf.boolean_mask(theta_0_2_, mask_0_2),[-1,1])
 		phi_0_2 = tf.reshape(tf.boolean_mask(phi_0_2_, mask_0_2),[-1,1])
+		
+		surf_0_2 = tf.fill(tf.shape(res_0_2), tf.to_float(tf.shape(res_0_2)[0])/tf.to_float(tf.shape(r_one)[0]))
+		return res_0_2, theta_0_2, phi_0_2, surf_0_2
 
-		return res_0_2, theta_0_2, phi_0_2
+res_1, theta_1, phi_1, surf_1 = get_slice(r_onex, theta_onex, phi_onex, 0.0, 1.0, "s1")
+res_11, theta_11, phi_11,surf_11 = get_slice(r_onex, theta_onex, phi_onex, 0.0, 0.4, "s11")
+res_2, theta_2, phi_2,surf_2 = get_slice(r_onex, theta_onex, phi_onex, 0.1, 1.0, "s2")
+res_12, theta_12, phi_12,surf_12 = get_slice(r_onex, theta_onex, phi_onex, 0.1, 0.5, "s12")
 
-res_1, theta_1, phi_1 = get_slice(r_onex, theta_onex, phi_onex, 0.0, 1.0, "s1")
-res_11, theta_11, phi_11 = get_slice(r_onex, theta_onex, phi_onex, 0.0, 0.4, "s11")
-res_2, theta_2, phi_2 = get_slice(r_onex, theta_onex, phi_onex, 0.1, 1.0, "s2")
-res_12, theta_12, phi_12 = get_slice(r_onex, theta_onex, phi_onex, 0.1, 0.5, "s12")
+res_3, theta_3, phi_3,surf_3 = get_slice(r_onex, theta_onex, phi_onex, 0.2, 1.0, "s3")
+res_13, theta_13, phi_13,surf_13 = get_slice(r_onex, theta_onex, phi_onex, 0.2, 0.6, "s13")
+res_4, theta_4, phi_4,surf_4 = get_slice(r_onex, theta_onex, phi_onex, 0.3, 1.0, "s4")
+res_14, theta_14, phi_14,surf_14 = get_slice(r_onex, theta_onex, phi_onex, 0.3, 0.7, "s14")
 
-res_3, theta_3, phi_3 = get_slice(r_onex, theta_onex, phi_onex, 0.2, 1.0, "s3")
-res_13, theta_13, phi_13 = get_slice(r_onex, theta_onex, phi_onex, 0.2, 0.6, "s13")
-res_4, theta_4, phi_4 = get_slice(r_onex, theta_onex, phi_onex, 0.3, 1.0, "s4")
-res_14, theta_14, phi_14 = get_slice(r_onex, theta_onex, phi_onex, 0.3, 0.7, "s14")
+res_5, theta_5, phi_5,surf_5 = get_slice(r_onex, theta_onex, phi_onex, 0.4, 1.0, "s5")
+res_15, theta_15, phi_15,surf_15 = get_slice(r_onex, theta_onex, phi_onex, 0.4, 0.8, "s15")
+res_6, theta_6, phi_6,surf_6 = get_slice(r_onex, theta_onex, phi_onex, 0.5, 1.0, "s6")
+res_16, theta_16, phi_16,surf_16 = get_slice(r_onex, theta_onex, phi_onex, 0.5, 0.9, "s16")
 
-res_5, theta_5, phi_5 = get_slice(r_onex, theta_onex, phi_onex, 0.4, 1.0, "s5")
-res_15, theta_15, phi_15 = get_slice(r_onex, theta_onex, phi_onex, 0.4, 0.8, "s15")
-res_6, theta_6, phi_6 = get_slice(r_onex, theta_onex, phi_onex, 0.5, 1.0, "s6")
-res_16, theta_16, phi_16 = get_slice(r_onex, theta_onex, phi_onex, 0.5, 0.9, "s16")
+res_7, theta_7, phi_7,surf_7 = get_slice(r_onex, theta_onex, phi_onex, 0.6, 1.0, "s7")
+res_17, theta_17, phi_17,surf_17 = get_slice(r_onex, theta_onex, phi_onex, 0.6, 1.0, "s17")
+res_8, theta_8, phi_8,surf_8 = get_slice(r_onex, theta_onex, phi_onex, 0.7, 1.0, "s8")
+res_18, theta_18, phi_18,surf_18 = get_slice(r_onex, theta_onex, phi_onex, 0.375, 1.0, "s18")
 
-res_7, theta_7, phi_7 = get_slice(r_onex, theta_onex, phi_onex, 0.6, 1.0, "s7")
-res_17, theta_17, phi_17 = get_slice(r_onex, theta_onex, phi_onex, 0.6, 1.0, "s17")
-res_8, theta_8, phi_8 = get_slice(r_onex, theta_onex, phi_onex, 0.7, 1.0, "s8")
-res_18, theta_18, phi_18 = get_slice(r_onex, theta_onex, phi_onex, 0.375, 1.0, "s18")
-
-res_9, theta_9, phi_9 = get_slice(r_onex, theta_onex, phi_onex, 0.8, 1.0, "s9")
-res_19, theta_19, phi_19 = get_slice(r_onex, theta_onex, phi_onex, 0.425, 1.0, "s19")
-res_10, theta_10, phi_10 = get_slice(r_onex, theta_onex, phi_onex, 0.9, 1.0, "s10")
-res_20, theta_20, phi_20 = get_slice(r_onex, theta_onex, phi_onex, 0.475, 1.0, "s20")
+res_9, theta_9, phi_9,surf_9 = get_slice(r_onex, theta_onex, phi_onex, 0.8, 1.0, "s9")
+res_19, theta_19, phi_19,surf_19 = get_slice(r_onex, theta_onex, phi_onex, 0.425, 1.0, "s19")
+res_10, theta_10, phi_10,surf_10 = get_slice(r_onex, theta_onex, phi_onex, 0.9, 1.0, "s10")
+res_20, theta_20, phi_20,surf_20 = get_slice(r_onex, theta_onex, phi_onex, 0.475, 1.0, "s20")
 
 
 X_1 = get_zernike_mat(res_1,theta_1,phi_1,"x1")
@@ -1096,7 +1142,7 @@ X_inv_20 = calc_inverse(X_20, "inv_20")
 
 
 
-
+"""
 C_1 = tf.tile(tf.expand_dims(tf.matmul(X_inv_1,res_1),axis=0), [16,1,1])
 C_2 = tf.tile(tf.expand_dims(tf.matmul(X_inv_2,res_2),axis=0), [16,1,1])
 C_3 = tf.tile(tf.expand_dims(tf.matmul(X_inv_3,res_3),axis=0), [16,1,1])
@@ -1118,6 +1164,30 @@ C_17 = tf.tile(tf.expand_dims(tf.matmul(X_inv_17,res_17),axis=0), [16,1,1])
 C_18 = tf.tile(tf.expand_dims(tf.matmul(X_inv_18,res_18),axis=0), [16,1,1])
 C_19 = tf.tile(tf.expand_dims(tf.matmul(X_inv_19,res_19),axis=0), [16,1,1])
 C_20 = tf.tile(tf.expand_dims(tf.matmul(X_inv_20,res_20),axis=0), [16,1,1])
+"""
+
+
+C_1 = tf.tile(tf.expand_dims(tf.matmul(X_inv_1,surf_1),axis=0), [16,1,1])
+C_2 = tf.tile(tf.expand_dims(tf.matmul(X_inv_2,surf_2),axis=0), [16,1,1])
+C_3 = tf.tile(tf.expand_dims(tf.matmul(X_inv_3,surf_3),axis=0), [16,1,1])
+C_4 = tf.tile(tf.expand_dims(tf.matmul(X_inv_4,surf_4),axis=0), [16,1,1])
+C_5 = tf.tile(tf.expand_dims(tf.matmul(X_inv_5,surf_5),axis=0), [16,1,1])
+C_6 = tf.tile(tf.expand_dims(tf.matmul(X_inv_6,surf_6),axis=0), [16,1,1])
+C_7 = tf.tile(tf.expand_dims(tf.matmul(X_inv_7,surf_7),axis=0), [16,1,1])
+C_8 = tf.tile(tf.expand_dims(tf.matmul(X_inv_8,surf_8),axis=0), [16,1,1])
+C_9 = tf.tile(tf.expand_dims(tf.matmul(X_inv_9,surf_9),axis=0), [16,1,1])
+C_10 = tf.tile(tf.expand_dims(tf.matmul(X_inv_10,surf_10),axis=0), [16,1,1])
+
+C_11 = tf.tile(tf.expand_dims(tf.matmul(X_inv_11,surf_11),axis=0), [16,1,1])
+C_12 = tf.tile(tf.expand_dims(tf.matmul(X_inv_12,surf_12),axis=0), [16,1,1])
+C_13 = tf.tile(tf.expand_dims(tf.matmul(X_inv_13,surf_13),axis=0), [16,1,1])
+C_14 = tf.tile(tf.expand_dims(tf.matmul(X_inv_14,surf_14),axis=0), [16,1,1])
+C_15 = tf.tile(tf.expand_dims(tf.matmul(X_inv_15,surf_15),axis=0), [16,1,1])
+C_16 = tf.tile(tf.expand_dims(tf.matmul(X_inv_16,surf_16),axis=0), [16,1,1])
+C_17 = tf.tile(tf.expand_dims(tf.matmul(X_inv_17,surf_17),axis=0), [16,1,1])
+C_18 = tf.tile(tf.expand_dims(tf.matmul(X_inv_18,surf_18),axis=0), [16,1,1])
+C_19 = tf.tile(tf.expand_dims(tf.matmul(X_inv_19,surf_19),axis=0), [16,1,1])
+C_20 = tf.tile(tf.expand_dims(tf.matmul(X_inv_20,surf_20),axis=0), [16,1,1])
 
 
 init_sigma = 0.1
@@ -1198,19 +1268,26 @@ def pooling(input_map, scope):
 
                 #resized = tf.image.resize_images(pooled_map,[75,75])
                 #resized = tf.image.resize_images(tf.reshape(input_map,[16,100,100,1]),[75,75])
-		transform_mat = tf.get_variable("transfrom",[1,100,100])
-		transform_mat_2 = tf.get_variable("transfrom2",[1,100,100])
+		transform_mat = tf.get_variable("transfrom",[16,100,100])
+		
+
+		
+		transform_mat_2 = tf.get_variable("transfrom2",[16,100,100])
 	
-		pooled_1 = tf.reduce_sum(tf.multiply(input_map,tf.tile(transform_mat, [16,1,1])),axis = 2,keep_dims =True)
-		pooled_2 = tf.transpose(tf.reduce_sum(tf.multiply(input_map,tf.tile(transform_mat_2, [16,1,1])),axis = 1,keep_dims =True),[0,2,1])
+		pooled_1 = tf.reduce_sum(tf.multiply(input_map,transform_mat),axis = 2,keep_dims =True)
+		pooled_2 = tf.transpose(tf.reduce_sum(tf.multiply(input_map, transform_mat_2),axis = 1,keep_dims =True),[0,2,1])
                # pooled = tf.slice(input_map,[0,25,25],[-1,-1,-1])
 		pooled = tf.concat([pooled_1,pooled_2],axis = 1)
                 return pooled
 
 
-
-
-
+def pooling_(input_map, scope):
+        with tf.variable_scope(scope):
+		transform_mat = tf.get_variable("transfrom",[16,100,100])
+		W_1 = tf.get_variable("W1",[16,1,100])
+		ak = tf.tile(tf.nn.softmax(tf.matmul(W_1,tf.nn.tanh(tf.matmul(transform_mat,input_map))),axis = 2),[1,100,1])
+		pooled = tf.reduce_sum(tf.multiply(input_map,ak),axis = 2,keep_dims =True)
+		return pooled
 #def poolingl(input_map, scope):
  #       with tf.variable_scope(scope):
 	
@@ -1281,7 +1358,7 @@ f_mapz_8_10 = tf.matmul(C_8_10, tf.transpose(C_pf_8_10, [0,2,1]))
 #random_mat = tf.nn.l2_normalize(random_mat_, axis = [1])
 #f_map = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapz1,f_mapz3,f_mapz5,f_mapz7,f_mapz9],axis = 2), [1,200*5*16,1])),keep_prob=keep_prob)
 
-f_map = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapz1, f_mapz2,f_mapz3, f_mapz4,f_mapz5,f_mapz6, f_mapz7,f_mapz8,f_mapz9,f_mapz10,f_mapz11,f_mapz12,f_mapz13,f_mapz14,f_mapz15,f_mapz16,f_mapz17],axis = 2), [1,200*17*16,1])),keep_prob=keep_prob)
+f_map = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapz1, f_mapz2,f_mapz3, f_mapz4,f_mapz5,f_mapz6, f_mapz7,f_mapz8,f_mapz9,f_mapz10],axis = 2), [1,200*10*16,1])),keep_prob=keep_prob)
 
 #f_map = tf.layers.max_pooling1d(f_map_, 10,10) 
 
@@ -1290,30 +1367,30 @@ f_map = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapz1, f_mapz2,f_mapz3,
 #f_map = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([tf.maximum(f_mapz1,f_mapz2), tf.maximum(f_mapz3,f_mapz4), tf.maximum(f_mapz5,f_mapz6), tf.maximum(f_mapz7,f_mapz8), tf.maximum(f_mapz9,f_mapz10)],axis = 2), [1,10000*5*16])),keep_prob=keep_prob)
 
 ###################################################################################################################
-resi_1, thetai_1, phii_1 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.0, 1.0, "s1i")
-resi_11, thetai_11, phii_11 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.0, 0.4, "s11i")
-resi_2, thetai_2, phii_2 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.1, 1.0, "s2i")
-resi_12, thetai_12, phii_12 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.1, 0.5, "s13i")
+resi_1, thetai_1, phii_1, surfi_1 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.0, 1.0, "s1i")
+resi_11, thetai_11, phii_11,surfi_11 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.0, 0.4, "s11i")
+resi_2, thetai_2, phii_2,surfi_2 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.1, 1.0, "s2i")
+resi_12, thetai_12, phii_12, surfi_12 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.1, 0.5, "s13i")
 
-resi_3, thetai_3, phii_3 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.2, 1.0, "s3i")
-resi_13, thetai_13, phii_13 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.2, 0.6, "s13i")
-resi_4, thetai_4, phii_4 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.3, 1.0, "s4i")
-resi_14, thetai_14, phii_14 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.3, 0.7, "s14i")
+resi_3, thetai_3, phii_3, surfi_3 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.2, 1.0, "s3i")
+resi_13, thetai_13, phii_13, surfi_13 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.2, 0.6, "s13i")
+resi_4, thetai_4, phii_4,surfi_4 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.3, 1.0, "s4i")
+resi_14, thetai_14, phii_14,surfi_14 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.3, 0.7, "s14i")
 
-resi_5, thetai_5, phii_5 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.4, 1.0, "s5i")
-resi_15, thetai_15, phii_15 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.4, 0.8, "s15i")
-resi_6, thetai_6, phii_6 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.5, 1.0, "s6i")
-resi_16, thetai_16, phii_16 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.5, 0.9, "s16i")
+resi_5, thetai_5, phii_5, surfi_5 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.4, 1.0, "s5i")
+resi_15, thetai_15, phii_15,surfi_15 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.4, 0.8, "s15i")
+resi_6, thetai_6, phii_6,surfi_6 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.5, 1.0, "s6i")
+resi_16, thetai_16, phii_16, surfi_16 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.5, 0.9, "s16i")
 
-resi_7, thetai_7, phii_7 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.6, 1.0, "s7i")
-resi_17, thetai_17, phii_17 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.6, 1.0, "s17i")
-resi_8, thetai_8, phii_8 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.7, 1.0, "s8i")
-resi_18, thetai_18, phii_18 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.375, 1.0, "s18i")
+resi_7, thetai_7, phii_7,surfi_7 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.6, 1.0, "s7i")
+resi_17, thetai_17, phii_17,surfi_17 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.6, 1.0, "s17i")
+resi_8, thetai_8, phii_8,surfi_8 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.7, 1.0, "s8i")
+resi_18, thetai_18, phii_18,surfi_18 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.375, 1.0, "s18i")
 
-resi_9, thetai_9, phii_9 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.8, 1.0, "s9i")
-resi_19, thetai_19, phii_19 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.425, 1.0, "s19i")
-resi_10, thetai_10, phii_10 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.9, 1.0, "s10i")
-resi_20, thetai_20, phii_20 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.475, 1.0, "s20i")
+resi_9, thetai_9, phii_9, surfi_9 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.8, 1.0, "s9i")
+resi_19, thetai_19, phii_19, surfi_19 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.425, 1.0, "s19i")
+resi_10, thetai_10, phii_10,surfi_10 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.9, 1.0, "s10i")
+resi_20, thetai_20, phii_20,surfi_20 = get_slice(r_onexi, theta_onexi, phi_onexi, 0.475, 1.0, "s20i")
 
 Xi_1 = get_zernike_mat(resi_1,thetai_1,phii_1,"xi1")
 Xi_2 = get_zernike_mat(resi_2,thetai_2,phii_2,"xi2")
@@ -1362,26 +1439,26 @@ Xi_invi_20 = calc_inverse(Xi_20, "invi_20")
 
 
 
-Ci_1 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_1,resi_1),axis=0), [16,1,1])
-Ci_2 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_2,resi_2),axis=0), [16,1,1])
-Ci_3 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_3,resi_3),axis=0), [16,1,1])
-Ci_4 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_4,resi_4),axis=0), [16,1,1])
-Ci_5 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_5,resi_5),axis=0), [16,1,1])
-Ci_6 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_6,resi_6),axis=0), [16,1,1])
-Ci_7 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_7,resi_7),axis=0), [16,1,1])
-Ci_8 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_8,resi_8),axis=0), [16,1,1])
-Ci_9 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_9,resi_9),axis=0), [16,1,1])
-Ci_10 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_10,resi_10),axis=0), [16,1,1])
-Ci_11 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_11,resi_11),axis=0), [16,1,1])
-Ci_12 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_12,resi_12),axis=0), [16,1,1])
-Ci_13 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_13,resi_13),axis=0), [16,1,1])
-Ci_14 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_14,resi_14),axis=0), [16,1,1])
-Ci_15 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_15,resi_15),axis=0), [16,1,1])
-Ci_16 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_16,resi_16),axis=0), [16,1,1])
-Ci_17 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_17,resi_17),axis=0), [16,1,1])
-Ci_18 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_18,resi_18),axis=0), [16,1,1])
-Ci_19 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_19,resi_19),axis=0), [16,1,1])
-Ci_20 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_20,resi_20),axis=0), [16,1,1])
+Ci_1 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_1,surfi_1),axis=0), [16,1,1])
+Ci_2 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_2,surfi_2),axis=0), [16,1,1])
+Ci_3 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_3,surfi_3),axis=0), [16,1,1])
+Ci_4 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_4,surfi_4),axis=0), [16,1,1])
+Ci_5 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_5,surfi_5),axis=0), [16,1,1])
+Ci_6 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_6,surfi_6),axis=0), [16,1,1])
+Ci_7 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_7,surfi_7),axis=0), [16,1,1])
+Ci_8 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_8,surfi_8),axis=0), [16,1,1])
+Ci_9 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_9,surfi_9),axis=0), [16,1,1])
+Ci_10 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_10,surfi_10),axis=0), [16,1,1])
+Ci_11 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_11,surfi_11),axis=0), [16,1,1])
+Ci_12 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_12,surfi_12),axis=0), [16,1,1])
+Ci_13 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_13,surfi_13),axis=0), [16,1,1])
+Ci_14 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_14,surfi_14),axis=0), [16,1,1])
+Ci_15 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_15,surfi_15),axis=0), [16,1,1])
+Ci_16 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_16,surfi_16),axis=0), [16,1,1])
+Ci_17 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_17,surfi_17),axis=0), [16,1,1])
+Ci_18 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_18,surfi_18),axis=0), [16,1,1])
+Ci_19 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_19,surfi_19),axis=0), [16,1,1])
+Ci_20 = tf.tile(tf.expand_dims(tf.matmul(Xi_invi_20,surfi_20),axis=0), [16,1,1])
 
 f1i = tf.random_normal(
     shape=(16,100,1),
@@ -1446,7 +1523,7 @@ map5i = tf.maximum(tf.maximum(f_mapzi9,f_mapzi10),tf.maximum(f_mapzi19,f_mapzi20
 #f_map_i = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([map1i,map2i,map3i,map4i,map5i],axis = 2), [1,10000*5*16])), keep_prob=keep_prob)
 
 #f_map_i = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapzi1,f_mapzi3 ,f_mapzi5,f_mapzi7,f_mapzi9],axis = 2), [1,200*5*16,1])), keep_prob=keep_prob)
-f_map_i = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapzi1, f_mapzi2,f_mapzi3, f_mapzi4,f_mapzi5,f_mapzi6, f_mapzi7,f_mapzi8,f_mapzi9,f_mapzi10, f_mapzi11, f_mapzi12,f_mapzi13,f_mapzi14,f_mapzi15,f_mapzi16,f_mapzi17],axis = 2), [1,200*17*16,1])),keep_prob=keep_prob)
+f_map_i = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapzi1, f_mapzi2,f_mapzi3, f_mapzi4,f_mapzi5,f_mapzi6, f_mapzi7,f_mapzi8,f_mapzi9,f_mapzi10],axis = 2), [1,200*10*16,1])),keep_prob=keep_prob)
 
 
 #f_map_i = tf.matmul(random_mat,f_map_i_)
@@ -1455,6 +1532,8 @@ f_map_i = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapzi1, f_mapzi2,f_ma
 #f_map_i = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([tf.maximum(f_mapzi1,f_mapzi2), tf.maximum(f_mapzi3 ,f_mapzi4), tf.maximum(f_mapzi5 ,f_mapzi6), tf.maximum(f_mapzi7 ,f_mapzi8), tf.maximum(f_mapzi9,f_mapzi10) ],axis = 2), [1,10000*5*16])), keep_prob=keep_prob)
 
 #####################################################################################################################################333
+"""
+
 resy_1, thetay_1, phiy_1 = get_slice(r_oney, theta_oney, phi_oney, 0.0, 1.0, "sy1")
 resy_11, thetay_11, phiy_11 = get_slice(r_oney, theta_oney, phi_oney, 0.025, 1.0, "sy11")
 resy_2, thetay_2, phiy_2 = get_slice(r_oney, theta_oney, phi_oney, 0.05, 1.0, "sy2")
@@ -1755,7 +1834,7 @@ f_mapyi = tf.nn.dropout(tf.nn.relu(tf.reshape(tf.concat([f_mapyi1,f_mapyi2, f_ma
 #f_mapyi = tf.matmul(random_mat,f_mapyi_)
 
 #f_mapyi = tf.layers.max_pooling1d(f_mapyi_, 20,20)
-
+"""
 B = tf.concat([f_map,f_map_i], axis =1)
 def dense_batch_relu(x, phase, scope,units):
     with tf.variable_scope(scope):
@@ -1777,7 +1856,7 @@ phase = tf.placeholder(tf.bool, name='phase')
 init_sigma = 0.01
 
 #layer_1 = tf.concat([tf.reshape(B, [1,90]),f_11,f_12,f_13], axis = 1)
-layer_1 = tf.nn.dropout(tf.nn.relu(tf.reshape(B, [1, 200*34*16])),keep_prob=keep_prob)
+layer_1 = tf.nn.dropout(tf.nn.relu(tf.reshape(B, [1, 200*20*16])),keep_prob=keep_prob)
 
 #layer_1 = tf.concat([f_11,f_12,f_13], axis = 1)
 
@@ -1878,12 +1957,12 @@ accuracy = tf.reduce_mean(tf.cast(correct, tf.float32), name="accuracy")
 # block_hankel = tf.slice(calibrated_points_one_corrected_shape, [0, 0, 0], [-1,10,-1])
 sess.run(tf.global_variables_initializer())
 
-graph = tf.get_default_graph()
-mat_t1= graph.get_tensor_by_name("pool1/transfrom:0")
-mat_t2= graph.get_tensor_by_name("pool1/transfrom2:0")
+#graph = tf.get_default_graph()
+#mat_t1= graph.get_tensor_by_name("pool1/transfrom:0")
+#mat_t2= graph.get_tensor_by_name("pool1/transfrom2:0")
 
-mat_t1p2= graph.get_tensor_by_name("pool4/transfrom:0")
-mat_t2p2= graph.get_tensor_by_name("pool4/transfrom2:0")
+#mat_t1p2= graph.get_tensor_by_name("pool4/transfrom:0")
+#mat_t2p2= graph.get_tensor_by_name("pool4/transfrom2:0")
 
 def read_datapoint(data, filename):
   points = np.array([[0, 0, 0]])
@@ -1980,22 +2059,23 @@ for j in range(10):
 		#	test  = sess.run([weighted_sum_round_2], feed_dict = {y:y_annot, raw_points_init:points_raw})
 			test  = sess.run([loss ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
           	 	print(test)
-			m1  = sess.run([mat_t1 ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
+#			m1  = sess.run([mat_t1 ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
                        # print(test)
-			m2  = sess.run([mat_t2 ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
+#			m2  = sess.run([mat_t2 ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
                        # print(test)
-			m3  = sess.run([mat_t1p2 ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
+
+#			m3  = sess.run([mat_t1p2 ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
                        # print(test)
-			m4  = sess.run([mat_t2p2 ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
+#			m4  = sess.run([mat_t2p2 ], feed_dict = {y:y_annot, raw_points_init:points_raw, phase:True, keep_prob :0.5})
                        # print(test)
-			np.savetxt('m1.txt', np.reshape(m1,(100,100)))
-			np.savetxt('m2.txt', np.reshape(m2,(100,100)))
-			np.savetxt('m3.txt', np.reshape(m3,(100,100)))
-			np.savetxt('m4.txt', np.reshape(m4,(100,100)))
+#			np.savetxt('m1.txt', np.reshape(m1,(100,100)))
+#			np.savetxt('m2.txt', np.reshape(m2,(100,100)))
+#			np.savetxt('m3.txt', np.reshape(m3,(100,100)))
+#			np.savetxt('m4.txt', np.reshape(m4,(100,100)))
 #			test1  = sess.run([res_2_4i], feed_dict = {y:y_annot, raw_points_init:points_raw})
  #                       print(test1)
 #			print(filename)
-			if not np.isnan(test).any() and np.less(test, 1000): 
+			if not np.isnan(test).any() and np.less(test, 10).all(): 
 				main_itr = main_itr+1
 	               # 	print(filename)
 				print(main_itr)
